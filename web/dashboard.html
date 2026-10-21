@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard — TheDoom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #f6f9fc;
+            --card-bg: #ffffff;
+            --border-color: #e6ebf1;
+            --border-subtle: #f0f3f7;
+            --text-navy: #0a2540;
+            --text-slate: #425466;
+            --text-muted: #6b7c93;
+            --text-light: #8898aa;
+            --stripe-blurple: #635bff;
+            --stripe-blurple-hover: #534be5;
+            --stripe-blurple-light: #f4f3ff;
+            --danger-red: #df1b41;
+            --danger-red-bg: #fef1f2;
+            --danger-red-border: #fecdd3;
+            --warning-amber: #b76e00;
+            --warning-amber-bg: #fffbeb;
+            --warning-amber-border: #fde68a;
+            --success-green: #007a3d;
+            --success-green-bg: #d4f7dc;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --shadow-card: 0 13px 27px -5px rgba(50, 50, 93, 0.08), 0 8px 16px -8px rgba(0, 0, 0, 0.06), 0 -6px 16px -6px rgba(0, 0, 0, 0.02);
+            --shadow-sm: 0 2px 5px rgba(50, 50, 93, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: var(--bg-page);
+            color: var(--text-slate);
+            font-family: var(--font-sans);
+            display: flex;
+            flex-direction: column;
+            letter-spacing: -0.011em;
+        }
+
+        .stripe-ribbon {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 360px;
+            background: linear-gradient(135deg, #f4f6fb 0%, #edf2f9 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 65%, 0 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .navbar {
+            position: relative;
+            z-index: 10;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 32px;
+        }
+
+        .nav-inner {
+            max-width: 1120px;
+            margin: 0 auto;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-gem {
+            width: 34px;
+            height: 34px;
+            background: var(--stripe-blurple);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(99, 91, 255, 0.3);
+        }
+
+        .brand-titles {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-titles h1 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-navy);
+        }
+
+        .badge-env {
+            background: #eef2f6;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .node-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--success-green-bg);
+            color: var(--success-green);
+            padding: 4px 10px;
+            border-radius: 980px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .node-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--success-green);
+        }
+
+        .btn-nav-action {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-slate);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-nav-action:hover {
+            background: #f8fafc;
+            color: var(--text-navy);
+            border-color: #cbd5e1;
+        }
+
+        .main-wrapper {
+            position: relative;
+            z-index: 10;
+            max-width: 1120px;
+            width: 100%;
+            margin: 32px auto 60px;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .metric-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .metric-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-light);
+        }
+
+        .metric-icon {
+            color: var(--text-muted);
+        }
+
+        .metric-val {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-navy);
+        }
+
+        .metric-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .progress-bar-thin {
+            width: 100%;
+            height: 4px;
+            background: #edf2f7;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 0.3s ease;
+        }
+
+        .fill-blue {
+            background: var(--stripe-blurple);
+        }
+
+        .fill-emerald {
+            background: #10b981;
+        }
+
+        .fill-amber {
+            background: #f59e0b;
+        }
+
+        .fill-cyan {
+            background: #0284c7;
+        }
+
+        .countdown-banner {
+            display: none;
+            padding: 16px 24px;
+            background: var(--danger-red-bg);
+            border: 1px solid var(--danger-red-border);
+            border-radius: 10px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .countdown-banner.active {
+            display: flex;
+        }
+
+        .countdown-info h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--danger-red);
+        }
+
+        .countdown-info p {
+            font-size: 13px;
+            color: var(--text-slate);
+            margin-top: 2px;
+        }
+
+        .btn-cancel-countdown {
+            background: var(--danger-red);
+            color: #ffffff;
+            border: none;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(223, 27, 65, 0.3);
+            transition: background 0.15s ease;
+        }
+
+        .btn-cancel-countdown:hover {
+            background: #c81335;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 7fr 5fr;
+            gap: 24px;
+        }
+
+        .content-box {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .box-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .box-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-navy);
+        }
+
+        .box-badge {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--stripe-blurple);
+            background: var(--stripe-blurple-light);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .search-strip {
+            padding: 12px 24px;
+            background: #fafbfc;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input-wrapper svg {
+            position: absolute;
+            left: 10px;
+            color: var(--text-muted);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 7px 10px 7px 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: var(--font-sans);
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+
+        .search-box:focus {
+            border-color: var(--stripe-blurple);
+        }
+
+        .proc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .proc-table th {
+            text-align: left;
+            padding: 10px 24px;
+            background: #ffffff;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .proc-table td {
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-slate);
+        }
+
+        .proc-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .proc-table tr:hover td {
+            background: #fbfcfd;
+        }
+
+        .proc-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--text-navy);
+        }
+
+        .proc-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .proc-mem-cell {
+            font-weight: 600;
+            color: var(--text-navy);
+        }
+
+        .tag-active {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .power-deck {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .action-row {
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.15s ease;
+        }
+
+        .action-row:last-child {
+            border-bottom: none;
+        }
+
+        .action-row:hover {
+            background: #fcfdfe;
+        }
+
+        .action-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .action-icon-disc {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .disc-red {
+            background: var(--danger-red-bg);
+            color: var(--danger-red);
+        }
+
+        .disc-amber {
+            background: var(--warning-amber-bg);
+            color: var(--warning-amber);
+        }
+
+        .disc-slate {
+            background: #f1f5f9;
+            color: var(--text-slate);
+        }
+
+        .disc-blue {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .action-text h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-navy);
+        }
+
+        .action-text p {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .btn-action {
+            font-family: var(--font-sans);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .btn-red {
+            background: #ffffff;
+            color: var(--danger-red);
+            border-color: #fca5a5;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-red:hover {
+            background: var(--danger-red);
+            border-color: var(--danger-red);
+            color: #ffffff;
+        }
+
+        .btn-amber {
+            background: #ffffff;
+            color: var(--warning-amber);
+            border-color: #fde68a;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-amber:hover {
+            background: #d97706;
+            border-color: #d97706;
+            color: #ffffff;
+        }
+
+        .btn-neutral {
+            background: #ffffff;
+            color: var(--text-navy);
+            border-color: var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-neutral:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .tunnel-meta-list {
+            padding: 14px 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 13px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .meta-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .meta-k {
+            color: var(--text-muted);
+        }
+
+        .meta-v {
+            font-weight: 600;
+            color: var(--text-navy);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 37, 64, 0.4);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+            padding: 28px;
+            text-align: left;
+        }
+
+        .modal-box h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-navy);
+        }
+
+        .modal-box p {
+            font-size: 14px;
+            color: var(--text-slate);
+            line-height: 1.5;
+            margin: 10px 0 24px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-modal-cancel {
+            padding: 9px 18px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-navy);
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-modal-confirm {
+            padding: 9px 18px;
+            border: none;
+            border-radius: 6px;
+            color: #ffffff;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .signin-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .signin-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-card);
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .signin-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .signin-logo {
+            width: 38px;
+            height: 38px;
+            background: var(--stripe-blurple);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+        }
+
+        .signin-titles h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-navy);
+        }
+
+        .signin-titles p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .stripe-field {
+            margin-bottom: 20px;
+        }
+
+        .stripe-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-navy);
+            margin-bottom: 8px;
+        }
+
+        .stripe-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .stripe-input {
+            width: 100%;
+            padding: 11px 44px 11px 14px;
+            background: #ffffff;
+            border: 1px solid #d8e0ea;
+            border-radius: 6px;
+            color: var(--text-navy);
+            font-size: 14px;
+            outline: none;
+        }
+
+        .stripe-input:focus {
+            border-color: var(--stripe-blurple);
+            box-shadow: 0 0 0 4px rgba(99, 91, 255, 0.15);
+        }
+
+        .btn-toggle-view {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-stripe-submit {
+            width: 100%;
+            margin-top: 24px;
+            padding: 13px;
+            background: var(--stripe-blurple);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+        }
+
+        .error-banner {
+            padding: 12px 16px;
+            background: var(--danger-red-bg);
+            border: 1px solid var(--danger-red-border);
+            color: var(--danger-red);
+            font-size: 13px;
+            margin-bottom: 18px;
+            border-radius: 6px;
+        }
+
+        @media (max-width: 860px) {
+            .metrics-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .metrics-row {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar {
+                padding: 0 16px;
+            }
+
+            .main-wrapper {
+                padding: 0 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="stripe-ribbon"></div>
+
+    <!-- Master Top Navbar with YourHacker Logo -->
+    <header class="navbar">
+        <div class="nav-inner">
+            <div class="nav-left">
+                <div class="brand-logo-badge"
+                    style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: #ffffff; border-radius: 9px; border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,255,102,0.18); overflow: hidden; padding: 2px;">
+                    <img src="/YourHacker%20logo.png" alt="TheDoom Gateway"
+                        style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 6px rgba(0,255,102,0.5));">
+                </div>
+                <div class="brand-titles">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h1
+                            style="font-size: 16px; font-weight: 700; color: var(--text-navy); margin: 0; letter-spacing: -0.2px;">
+                            TheDoom Gateway</h1>
+                        <span class="badge-env"
+                            style="background: rgba(0,255,102,0.12); color: #059669; border: 1px solid rgba(0,255,102,0.3); font-weight: 600; font-size: 11px; padding: 2px 8px; border-radius: 12px;"
+                            id="navHostname">{{HOSTNAME}}</span>
+                    </div>
+                    <span class="brand-sub"
+                        style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">Infrastructure
+                        Telemetry & Remote Control</span>
+                </div>
+            </div>
+            <div class="nav-right">
+                <div class="node-pill">
+                    <span class="node-dot"></span>
+                    <span id="navIfaceCount">{{IFACE_COUNT}} Active Interfaces</span>
+                </div>
+                <button class="btn-nav-action" onclick="refreshTelemetry()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    <span>Sync</span>
+                </button>
+                <form method="post" action="/logout" style="margin: 0;">
+                    <input type="hidden" name="csrf" value="__CSRF_TOKEN__">
+                    <button type="submit" class="btn-nav-action">
+                        <span>Sign Out</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-wrapper">
+        <!-- Active Countdown Alert Banner -->
+        <div class="countdown-banner" id="countdownBanner">
+            <div class="countdown-info">
+                <h3 id="countdownTitle">Shutting down in 30 seconds</h3>
+                <p>Graceful power event in progress. Windows will terminate open processes.</p>
+            </div>
+            <button class="btn-cancel-countdown" onclick="cancelCountdown()">Abort Shutdown (shutdown /a)</button>
+        </div>
+
+        <!-- 5-Card Top Metrics Strip: Real-time CPU, RAM, GPU, Throughput, Storage -->
+        <div class="metrics-row" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+            <!-- Metric 1: Real-time CPU Utilization Gauge -->
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-title">CPU Utilization</span>
+                    <span class="metric-icon" style="color: #635bff;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                            <line x1="9" y1="1" x2="9" y2="4"></line>
+                            <line x1="15" y1="1" x2="15" y2="4"></line>
+                            <line x1="9" y1="20" x2="9" y2="23"></line>
+                            <line x1="15" y1="20" x2="15" y2="23"></line>
+                            <line x1="20" y1="9" x2="23" y2="9"></line>
+                            <line x1="20" y1="14" x2="23" y2="14"></line>
+                            <line x1="1" y1="9" x2="4" y2="9"></line>
+                            <line x1="1" y1="14" x2="4" y2="14"></line>
+                        </svg>
+                    </span>
+                </div>
+                <div class="metric-val" id="cpuVal">{{CPU_VAL}}</div>
+                <div class="progress-bar-thin">
+                    <div class="bar-fill" id="cpuBar"
+                        style="background: linear-gradient(90deg, #635bff 0%, #38bdf8 100%); width: {{CPU_PERCENT}}%;">
+                    </div>
+                </div>
+                <div class="metric-sub" id="cpuSub">{{CPU_SUB}}</div>
+            </div>
+
+            <!-- Metric 2: Real-time RAM Utilization Gauge -->
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-title">System RAM</span>
+                    <span class="metric-icon" style="color: #0284c7;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="2" y="2" width="20" height="20" rx="4"></rect>
+                            <path d="M6 18h12"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="metric-val" id="ramVal">{{RAM_VAL}}</div>
+                <div class="progress-bar-thin">
+                    <div class="bar-fill fill-blue" id="ramBar" style="width: {{RAM_PERCENT}}%;"></div>
+                </div>
+                <div class="metric-sub" id="ramSub">{{RAM_SUB}}</div>
+            </div>
+
+            <!-- Metric 3: Real-time GPU Acceleration -->
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-title">GPU Engine</span>
+                    <span class="metric-icon" style="color: #a855f7;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                    </span>
+                </div>
+                <div class="metric-val" id="gpuVal"
+                    style="font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                    title="{{GPU_NAME}}">{{GPU_NAME}}</div>
+                <div class="progress-bar-thin">
+                    <div class="bar-fill" id="gpuBar"
+                        style="background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%); width: {{GPU_PERCENT}}%;">
+                    </div>
+                </div>
+                <div class="metric-sub" id="gpuSub">{{GPU_SUB}}</div>
+            </div>
+
+            <!-- Metric 4: Live Network Throughput -->
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-title">Network Throughput</span>
+                    <span class="metric-icon" style="color: #00ff66;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                            <polyline points="17 14 12 9 7 14"></polyline>
+                            <line x1="12" y1="9" x2="12" y2="21"></line>
+                        </svg>
+                    </span>
+                </div>
+                <div class="metric-val" id="netSpeedVal"
+                    style="font-size: 16px; font-family: 'JetBrains Mono', monospace;">
+                    {{NET_SPEED_VAL}}
+                </div>
+                <div class="progress-bar-thin">
+                    <div class="bar-fill fill-emerald" style="width: 100%;"></div>
+                </div>
+                <div class="metric-sub" id="netTotalSub">{{NET_TOTAL_SUB}}</div>
+            </div>
+
+            <!-- Metric 5: Primary Storage (C:) -->
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-title">Primary Storage (C:)</span>
+                    <span class="metric-icon" style="color: #f59e0b;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="metric-val" id="diskVal">{{PRIMARY_DISK_VAL}}</div>
+                <div class="progress-bar-thin">
+                    <div class="bar-fill fill-emerald" id="diskBar" style="width: {{PRIMARY_DISK_PERCENT}}%;"></div>
+                </div>
+                <div class="metric-sub" id="diskSub">{{PRIMARY_DISK_SUB}}</div>
+            </div>
+        </div>
+
+        <!-- Main 2-Column Split -->
+        <div class="dashboard-grid">
+            <!-- Left Column: Active Applications & All Disks -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <!-- Box 1: Active Running Applications -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <h2>Active Running Applications</h2>
+                        <span class="box-badge" id="procCount">{{PROC_COUNT}} Total Tasks</span>
+                    </div>
+
+                    <!-- Search Filter Bar -->
+                    <div class="search-strip">
+                        <div class="search-input-wrapper">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" class="search-box" id="procFilter" placeholder="Filter processes..."
+                                oninput="filterProcesses()">
+                        </div>
+                    </div>
+
+                    <table class="proc-table">
+                        <thead>
+                            <tr>
+                                <th>Application</th>
+                                <th>PID</th>
+                                <th>Memory Footprint</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="procTableBody">
+                            {{PROC_ROWS}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Box 2: All Disks & Storage Space -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div
+                                style="width: 28px; height: 28px; border-radius: 6px; background: rgba(99,91,255,0.1); display: flex; align-items: center; justify-content: center; color: var(--stripe-blurple);">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 style="font-size: 15px; font-weight: 700; color: var(--text-navy); margin: 0;">All
+                                    Disks & Storage Space</h2>
+                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Connected drives and
+                                    capacity allocation</p>
+                            </div>
+                        </div>
+                        <span class="box-badge" id="diskCountBadge">{{DISK_COUNT}} Volumes</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px 20px;"
+                        id="disksContainer">
+                        {{DISKS_HTML}}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Remote Power Actions, Network Interfaces & Specs -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <!-- Box 1: Remote Power Actions -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <h2>Remote Power Actions</h2>
+                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Interlocked</span>
+                    </div>
+
+                    <form id="actionForm" method="post" action="/action">
+                        <input type="hidden" name="csrf" value="__CSRF_TOKEN__">
+                        <input type="hidden" id="selectedAction" name="action" value="">
+
+                        <div class="power-deck">
+                            <!-- SHUT DOWN -->
+                            <div class="action-row">
+                                <div class="action-left">
+                                    <div class="action-icon-disc disc-red">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.2">
+                                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                                            <line x1="12" y1="2" x2="12" y2="12"></line>
+                                        </svg>
+                                    </div>
+                                    <div class="action-text">
+                                        <h3>Shut Down {{HOSTNAME}}</h3>
+                                        <p>30-second graceful power down</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-action btn-red" onclick="openModal('shutdown')">Shut
+                                    Down</button>
+                            </div>
+
+                            <!-- RESTART -->
+                            <div class="action-row">
+                                <div class="action-left">
+                                    <div class="action-icon-disc disc-amber">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.2">
+                                            <polyline points="23 4 23 10 17 10"></polyline>
+                                            <polyline points="1 20 1 14 7 14"></polyline>
+                                            <path
+                                                d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <div class="action-text">
+                                        <h3>Restart {{HOSTNAME}}</h3>
+                                        <p>Reboot and restore Tailscale</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-action btn-amber"
+                                    onclick="openModal('restart')">Restart</button>
+                            </div>
+
+                            <!-- HIBERNATE -->
+                            <div class="action-row">
+                                <div class="action-left">
+                                    <div class="action-icon-disc disc-slate">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.2">
+                                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="action-text">
+                                        <h3>Hibernate Host</h3>
+                                        <p>Dump RAM to SSD and sleep</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-action btn-neutral"
+                                    onclick="openModal('hibernate')">Hibernate</button>
+                            </div>
+
+                            <!-- LOCK WORKSTATION -->
+                            <div class="action-row">
+                                <div class="action-left">
+                                    <div class="action-icon-disc disc-blue">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.2">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="action-text">
+                                        <h3>Lock Desktop Session</h3>
+                                        <p>Instantly locks Windows session</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-action btn-neutral"
+                                    onclick="openModal('lock')">Lock</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Box 2: Connected Network Interfaces with Throughput -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div
+                                style="width: 28px; height: 28px; border-radius: 6px; background: rgba(0,240,255,0.1); display: flex; align-items: center; justify-content: center; color: #0284c7;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                                    <path
+                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 style="font-size: 15px; font-weight: 700; color: var(--text-navy); margin: 0;">
+                                    Connected Network Interfaces</h2>
+                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Active adapters &
+                                    assigned IP endpoints</p>
+                            </div>
+                        </div>
+                        <span class="box-badge" id="ifaceCountBadge"
+                            style="background: rgba(16,185,129,0.1); color: #059669; border: 1px solid rgba(16,185,129,0.25);">{{IFACE_COUNT}}
+                            Active</span>
+                    </div>
+
+                    <table class="proc-table">
+                        <thead>
+                            <tr>
+                                <th>Network Adapter</th>
+                                <th>IP Address</th>
+                                <th>Interface Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ifacesTableBody">
+                            {{IFACES_ROWS}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Box 3: Host Security & Hardware Specs Box -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <h2>Host Node Specifications</h2>
+                        <span style="font-size: 11px; color: var(--success-green); font-weight: 600;">Verified</span>
+                    </div>
+                    <div class="tunnel-meta-list">
+                        <div class="meta-row">
+                            <span class="meta-k">Host Machine Name</span>
+                            <span class="meta-v" id="specHostname">{{HOSTNAME}}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">Primary Interface IP</span>
+                            <span class="meta-v" id="specIp">{{PRIMARY_IP}} : {{PORT}}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">CPU Processor</span>
+                            <span class="meta-v" id="specCpu">{{CPU_CORES}} Logical Cores ({{CPU_ARCH}})</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">GPU Accelerator</span>
+                            <span class="meta-v" id="specGpu">{{GPU_NAME}}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">Operating Environment</span>
+                            <span class="meta-v" id="specOs">{{OS_NAME}}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">Mesh Overlay</span>
+                            <span class="meta-v" id="specMesh">{{MESH_STATUS}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer
+            style="margin-top: 32px; padding: 20px 0; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 600; color: var(--text-navy);">TheDoom Gateway v1.0</span>
+                <span>&bull;</span>
+                <span>Develop by Yourhacker with ❤️</span>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+                Node Telemetry Uplink: <span style="color: #10b981; font-weight: 600;">ACTIVE</span>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Modal Dialog -->
+    <div class="modal-overlay" id="confirmModal" onclick="closeModalOnBackdrop(event)">
+        <div class="modal-box">
+            <h3 id="modalTitle">Confirm Action</h3>
+            <p id="modalDesc">Are you sure you wish to execute this power command?</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+                <button type="button" class="btn-modal-confirm" id="btnConfirmAction" onclick="confirmAction()">Confirm
+                    Action</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CSRF = "__CSRF_TOKEN__";
+        let currentAction = null;
+        let timer = null;
+        let seconds = 30;
+
+        function openModal(action) {
+            currentAction = action;
+            const modal = document.getElementById('confirmModal');
+            const title = document.getElementById('modalTitle');
+            const desc = document.getElementById('modalDesc');
+            const btn = document.getElementById('btnConfirmAction');
+
+            btn.className = "btn-modal-confirm";
+            if (action === 'shutdown') {
+                title.innerText = "Confirm System Shutdown";
+                desc.innerText = "Are you sure you want to shut down this host? A 30-second abort window will be provided.";
+                btn.innerText = "Shut Down System";
+                btn.classList.add('btn-red');
+            } else if (action === 'restart') {
+                title.innerText = "Confirm System Restart";
+                desc.innerText = "Are you sure you want to reboot? Network access will briefly drop until the service restarts.";
+                btn.innerText = "Restart System";
+                btn.classList.add('btn-amber');
+            } else if (action === 'hibernate') {
+                title.innerText = "Confirm Hibernation";
+                desc.innerText = "System will save working memory to SSD and power off. Wake-on-LAN required to resume.";
+                btn.innerText = "Hibernate Host";
+                btn.classList.add('btn-neutral');
+            } else if (action === 'lock') {
+                title.innerText = "Confirm Desktop Lock";
+                desc.innerText = "Instantly locks the Windows user session. Remote telemetry remains active.";
+                btn.innerText = "Lock Session";
+                btn.classList.add('btn-neutral');
+            }
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            currentAction = null;
+        }
+
+        function closeModalOnBackdrop(e) {
+            if (e.target.id === 'confirmModal') {
+                closeModal();
+            }
+        }
+
+        async function confirmAction() {
+            const action = currentAction;
+            closeModal();
+            if (!action) return;
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('csrf', CSRF);
+                formData.append('action', action);
+
+                const resp = await fetch('/action', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    },
+                    body: formData.toString()
+                });
+
+                const data = await resp.json();
+                if (data.success) {
+                    if (action === 'shutdown' || action === 'restart') {
+                        startCountdown(action);
+                    } else {
+                        alert(data.message);
+                    }
+                } else {
+                    alert(data.error || "Action dispatch failed.");
+                }
+            } catch (err) {
+                document.getElementById('selectedAction').value = action;
+                document.getElementById('actionForm').submit();
+            }
+        }
+
+        function startCountdown(action) {
+            const banner = document.getElementById('countdownBanner');
+            const title = document.getElementById('countdownTitle');
+            title.innerText = (action === 'shutdown' ? "Shutting down in " : "Restarting in ") + "30 seconds";
+            banner.classList.add('active');
+
+            seconds = 30;
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                seconds--;
+                if (seconds > 0) {
+                    title.innerText = (action === 'shutdown' ? "Shutting down in " : "Restarting in ") + seconds + " seconds";
+                } else {
+                    clearInterval(timer);
+                    title.innerText = "Command dispatched to Windows";
+                }
+            }, 1000);
+        }
+
+        async function cancelCountdown() {
+            if (timer) clearInterval(timer);
+            document.getElementById('countdownBanner').classList.remove('active');
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('csrf', CSRF);
+                formData.append('action', 'abort');
+
+                const resp = await fetch('/action', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    },
+                    body: formData.toString()
+                });
+                const data = await resp.json();
+                alert(data.message || "Cancellation command sent.");
+            } catch (err) {
+                document.getElementById('selectedAction').value = 'abort';
+                document.getElementById('actionForm').submit();
+            }
+        }
+
+
+        function filterProcesses() {
+            const q = document.getElementById('procFilter').value.toLowerCase();
+            const rows = document.querySelectorAll('#procTableBody tr');
+            rows.forEach(r => {
+                const text = r.innerText.toLowerCase();
+                r.style.display = text.includes(q) ? '' : 'none';
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        async function refreshTelemetry() {
+            const btn = document.querySelector('.btn-nav-action');
+            if (btn) btn.style.opacity = '0.5';
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+                if (data.cpu_percent !== undefined) {
+                    document.getElementById('cpuVal').innerText = `${data.cpu_percent}% Load`;
+                    document.getElementById('cpuBar').style.width = `${data.cpu_percent}%`;
+                    document.getElementById('cpuSub').innerText = `${data.cpu_cores} Cores Active · Kernel Low-Latency`;
+                }
+                if (data.ram_total_gb) {
+                    document.getElementById('ramVal').innerText = `${data.ram_used_gb} / ${data.ram_total_gb} GB`;
+                    document.getElementById('ramBar').style.width = `${data.ram_percent}%`;
+                    document.getElementById('ramSub').innerText = `${data.ram_percent}% load · ${data.ram_avail_gb} GB available`;
+                }
+                if (data.net_rx_speed) {
+                    document.getElementById('netSpeedVal').innerHTML = `<span style="color: #10b981;">↓ ${data.net_rx_speed}</span>  <span style="color: #0284c7;">↑ ${data.net_tx_speed}</span>`;
+                    document.getElementById('netTotalSub').innerText = `Total: ${data.net_total_rx} In · ${data.net_total_tx} Out`;
+                }
+                if (data.primary_disk_free) {
+                    document.getElementById('diskVal').innerText = `${data.primary_disk_free} Free`;
+                    document.getElementById('diskBar').style.width = `${data.primary_disk_percent}%`;
+                    document.getElementById('diskSub').innerText = `${data.primary_disk_percent}% used of ${data.primary_disk_total} total`;
+                }
+
+                if (data.hostname) {
+                    const el = document.getElementById('navHostname');
+                    if (el) el.innerText = data.hostname;
+                    const sp = document.getElementById('specHostname');
+                    if (sp) sp.innerText = data.hostname;
+                }
+                if (data.gpu && data.gpu.name) {
+                    const gVal = document.getElementById('gpuVal');
+                    if (gVal) { gVal.innerText = data.gpu.name; gVal.title = data.gpu.name; }
+                    const gSub = document.getElementById('gpuSub');
+                    if (gSub) gSub.innerText = (data.gpu.status || 'Active') + ' · ' + (data.gpu.load || 'Active');
+                    const gSpec = document.getElementById('specGpu');
+                    if (gSpec) gSpec.innerText = data.gpu.name;
+                }
+
+                if (data.process_count) {
+                    document.getElementById('procCount').innerText = `${data.process_count} Total Tasks`;
+                }
+                if (data.top_processes && data.top_processes.length > 0) {
+                    const tbody = document.getElementById('procTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = data.top_processes.map(p => `
+                        <tr>
+                            <td>
+                                <div class="proc-name-cell">
+                                    <span class="proc-dot" style="background: ${p.color};"></span>
+                                    <span>${escapeHtml(p.name)}</span>
+                                </div>
+                            </td>
+                            <td>${escapeHtml(p.pid)}</td>
+                            <td class="proc-mem-cell">${escapeHtml(p.memory)}</td>
+                            <td><span class="tag-active">Active</span></td>
+                        </tr>
+                    `).join('');
+                        filterProcesses();
+                    }
+                }
+
+
+                // Real-time Connected Network Interfaces update
+                if (data.interfaces && data.interfaces.length > 0) {
+                    const ifacesBody = document.getElementById('ifacesTableBody');
+                    if (ifacesBody) {
+                        ifacesBody.innerHTML = data.interfaces.map(iface => {
+                            const name = iface.name || 'Interface';
+                            const desc = iface.desc || '';
+                            const ip = iface.ip || '';
+                            const itype = iface.type || 'Ethernet';
+                            const status = iface.status || 'Connected';
+                            const dotColor = (itype.toLowerCase().includes('mesh') || name.toLowerCase().includes('tailscale')) ? '#00ff66' : (itype.toLowerCase().includes('wi-fi') ? '#635bff' : '#8898aa');
+                            return `<tr>
+                            <td>
+                                <div class="proc-name-cell">
+                                    <span class="proc-dot" style="background: ${dotColor};"></span>
+                                    <div>
+                                        <div style="font-weight: 600; color: var(--text-navy); font-size: 13px;">${escapeHtml(name)}</div>
+                                        <div style="font-size: 11px; color: var(--text-muted);">${escapeHtml(desc)}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: var(--text-navy); background: #f0f4f8; padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border-color);">${escapeHtml(ip)}</span>
+                                    <button type="button" onclick="navigator.clipboard.writeText('${escapeHtml(ip)}'); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 1500);" style="border: 1px solid var(--border-color); background: #ffffff; cursor: pointer; color: var(--text-muted); font-size: 10px; padding: 2px 5px; border-radius: 4px;">Copy</button>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: rgba(99,91,255,0.08); color: var(--stripe-blurple); border: 1px solid rgba(99,91,255,0.2);">${escapeHtml(itype)}</span>
+                            </td>
+                            <td>
+                                <span class="tag-active" style="display: inline-flex; align-items: center; gap: 4px;">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                                    <span>${escapeHtml(status)}</span>
+                                </span>
+                            </td>
+                        </tr>`;
+                        }).join('');
+                    }
+                    const ifaceBadge = document.getElementById('ifaceCountBadge');
+                    if (ifaceBadge) ifaceBadge.innerText = `${data.interfaces.length} Active`;
+                    const navIface = document.getElementById('navIfaceCount');
+                    if (navIface) navIface.innerText = `${data.interfaces.length} Active Interfaces`;
+                }
+
+                // Real-time Storage Volumes update
+                if (data.disks && data.disks.length > 0) {
+                    const dContainer = document.getElementById('disksContainer');
+                    if (dContainer) {
+                        dContainer.innerHTML = data.disks.map(d => {
+                            const mount = d.path || d.mount || d.label || d.drive;
+                            const pct = d.percent || 0;
+                            const barColor = pct > 90 ? '#df1b41' : (pct > 75 ? '#f59e0b' : '#10b981');
+                            return `<div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 24px; height: 24px; border-radius: 6px; background: rgba(10,37,64,0.05); display: flex; align-items: center; justify-content: center; color: var(--text-navy);">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 700; font-size: 13px; color: var(--text-navy);">${escapeHtml(d.drive)}</div>
+                                        <div style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">Mount: ${escapeHtml(mount)}</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 13px; font-weight: 700; color: var(--text-navy);">${escapeHtml(d.free)} Free</div>
+                                    <div style="font-size: 11px; color: var(--text-muted);">${escapeHtml(d.used)} used of ${escapeHtml(d.total)}</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar-thin" style="height: 6px; background: #e6ebf1; border-radius: 3px; overflow: hidden;">
+                                <div class="bar-fill fill-emerald" style="width: ${pct}%; height: 100%; border-radius: 3px; background: ${barColor};"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-light);">
+                                <span>Volume Load: ${pct}%</span>
+                                <span>Total: ${escapeHtml(d.total)}</span>
+                            </div>
+                        </div>`;
+                        }).join('');
+                    }
+                    const dBadge = document.getElementById('diskCountBadge');
+                    if (dBadge) dBadge.innerText = `${data.disks.length} Volumes`;
+                }
+
+                // Real-time Host Node Specifications update
+                if (data.primary_ip) {
+                    const spIp = document.getElementById('specIp');
+                    if (spIp) spIp.innerText = `${data.primary_ip} : ${data.port || 6969}`;
+                }
+                if (data.mesh_status) {
+                    const spMesh = document.getElementById('specMesh');
+                    if (spMesh) spMesh.innerText = data.mesh_status;
+                }
+            } catch (e) { }
+            if (btn) btn.style.opacity = '1';
+        }
+
+        window.addEventListener("DOMContentLoaded", refreshTelemetry);
+        setInterval(refreshTelemetry, 15000);
+    </script>
+
+</body>
+
+</html>
