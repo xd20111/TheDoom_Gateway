@@ -2,6 +2,12 @@
 """
 TheDoom Gateway — Minimalist Remote Telemetry & Control Server
 Develop by Yourhacker with ❤️
+
+Features:
+- Native Windows Account Authentication via Win32 LogonUserW (Zero external dependencies)
+- Automatic password updates (reflects Windows password changes live)
+- Pre-login startup support (runs at boot via Task Scheduler before desktop sign-in)
+- Full hardware telemetry and remote power control deck
 """
 
 import os
@@ -9,11 +15,12 @@ import sys
 import time
 import json
 import zlib
-import hashlib
 import hmac
 import html
 import secrets
 import subprocess
+import ctypes
+import platform
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs
 
@@ -28,14 +35,140 @@ except ImportError:
 
 TAILSCALE_IP = os.getenv('TAILSCALE_IP', '100.64.0.2')
 PORT = int(os.getenv('PORT', '6969'))
-DASHBOARD_PASSWORD = os.getenv('DASHBOARD_PASSWORD', '20111')
 SESSION_LIFETIME = 8 * 60 * 60
 
-PASSWORD_HASH = hashlib.sha256(DASHBOARD_PASSWORD.encode('utf-8')).digest()
 SESSIONS = {}
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEB_DIR = os.path.join(BASE_DIR, 'web')
+
+# ============== WINDOWS NATIVE AUTHENTICATION ==============
+
+def get_default_username():
+    """Detect current Windows username, or primary user account if running at system boot."""
+    # 1. Active user environment variable
+    u = os.environ.get('USERNAME', '').strip()
+    if u and u.upper() not in ('SYSTEM', 'LOCAL SERVICE', 'NETWORK SERVICE', ''):
+        return u
+
+    # 2. Windows registry: LastUsedUsername / DefaultUserName (works at boot before login)
+    if platform.system() == 'Windows':
+        try:
+            import winreg
+            for key_path in (
+                r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon",
+                r"SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI"
+            ):
+                try:
+                    with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path) as k:
+                        for val_name in ("LastLoggedOnUser", "LastUsedUsername", "DefaultUserName"):
+                            try:
+                                val, _ = winreg.QueryValueEx(k, val_name)
+                                if val:
+                                    if '\\' in val:
+                                        val = val.split('\\', 1)[1]
+                                    if val and val.upper() not in ('SYSTEM', 'LOCAL SERVICE', 'NETWORK SERVICE'):
+                                        return val
+                            except Exception:
+                                pass
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        # 3. Inspect C:\Users folders for primary interactive user
+        try:
+            users_dir = os.environ.get('SystemDrive', 'C:') + '\\Users'
+            if os.path.isdir(users_dir):
+                excluded = {'ALL USERS', 'DEFAULT', 'DEFAULT USER', 'PUBLIC', 'DESKTOP.INI'}
+                candidates = [
+                    d for d in os.listdir(users_dir)
+                    if os.path.isdir(os.path.join(users_dir, d)) and d.upper() not in excluded
+                ]
+                if candidates:
+                    candidates.sort(key=lambda d: os.path.getmtime(os.path.join(users_dir, d)), reverse=True)
+                    return candidates[0]
+        except Exception:
+            pass
+
+    return ''
+
+
+def verify_windows_credentials(username, password):
+    """
+    Authenticate against Windows Local Security Authority (LSA) / SAM via LogonUserW.
+    Live validation: instantly reflects changed Windows passwords.
+    Works before login (at boot) and within active desktop sessions.
+    """
+    if not username:
+        return False, "Windows username is required."
+    if not password:
+        return False, "Windows password is required."
+
+    if platform.system() != 'Windows':
+        return False, "Windows authentication is only available on Windows."
+
+    try:
+        advapi32 = ctypes.windll.advapi32
+        kernel32 = ctypes.windll.kernel32
+
+        # Configure ctypes signature for pointer and 64-bit safety
+        advapi32.LogonUserW.argtypes = [
+            ctypes.c_wchar_p,
+            ctypes.c_wchar_p,
+            ctypes.c_wchar_p,
+            ctypes.c_uint32,
+            ctypes.c_uint32,
+            ctypes.POINTER(ctypes.c_void_p)
+        ]
+        advapi32.LogonUserW.restype = ctypes.c_int
+
+        token = ctypes.c_void_p()
+
+        domain = None
+        user = username
+        if '\\' in username:
+            domain, user = username.split('\\', 1)
+        elif '@' in username:
+            user, domain = username.split('@', 1)
+
+        domains_to_try = [domain if domain else '.']
+        # If user entered an email-style address, also try MicrosoftAccount provider
+        if '@' in username and not domain:
+            domains_to_try.append('MicrosoftAccount')
+
+        # LOGON32_LOGON_NETWORK (3) -> fast, standard remote network auth
+        # LOGON32_LOGON_INTERACTIVE (2) -> interactive console fallback
+        for dom in domains_to_try:
+            for logon_type in (3, 2):
+                res = advapi32.LogonUserW(
+                    user,
+                    dom,
+                    password,
+                    logon_type,
+                    0,  # LOGON32_PROVIDER_DEFAULT
+                    ctypes.byref(token)
+                )
+                if res:
+                    kernel32.CloseHandle(token)
+                    return True, "Authenticated"
+
+        err = kernel32.GetLastError()
+        if err == 1326:
+            return False, "Incorrect Windows username or password."
+        elif err == 1327:
+            return False, "Account restriction: Blank passwords cannot sign in remotely."
+        elif err == 1909:
+            return False, "This Windows account is locked out."
+        elif err == 1331:
+            return False, "This Windows account is currently disabled."
+        elif err == 1330:
+            return False, "The password for this Windows account has expired."
+        else:
+            return False, f"Windows authentication failed (Error code {err})."
+    except Exception as exc:
+        return False, f"Authentication error: {exc}"
+
 
 # ==================== VIEW ENGINE ====================
 
@@ -44,8 +177,11 @@ def read_view(filename):
     with open(path, 'r', encoding='utf-8') as f:
         return f.read()
 
-def render_login(message=''):
+def render_login(message='', prefill_user=None):
     content = read_view('login.html')
+    default_user = prefill_user if prefill_user is not None else get_default_username()
+    content = content.replace('{{DEFAULT_USERNAME}}', html.escape(default_user, quote=True))
+
     err_html = ''
     if message:
         is_ok = 'success' in message.lower() or 'signed out' in message.lower()
@@ -57,12 +193,13 @@ def render_login(message=''):
         return content.replace('{{ERROR_HTML}}', err_html)
     return content.replace('<form method="post"', f'{err_html}\n<form method="post"') if err_html else content
 
-def render_dashboard(csrf):
+def render_dashboard(csrf, user=''):
     content = read_view('dashboard.html')
     token = html.escape(csrf, quote=True)
     replacements = telemetry.get_template_replacements(TAILSCALE_IP, PORT)
     replacements['__CSRF_TOKEN__'] = token
     replacements['{{CSRF}}'] = token
+    replacements['{{AUTH_USER}}'] = html.escape(user) if user else 'Administrator'
     for k, v in replacements.items():
         content = content.replace(k, str(v))
     return content
@@ -153,7 +290,7 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
         if self.path in ('/', '/index.html'):
             _, session = self.get_session()
-            self.send_page(render_dashboard(session['csrf']) if session else render_login())
+            self.send_page(render_dashboard(session['csrf'], session.get('user', '')) if session else render_login())
             return
 
         if self.path == '/api/status':
@@ -169,21 +306,26 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         form = self.read_form()
 
-        # Sign-in
+        # Sign-in via native Windows credentials
         if self.path == '/login':
+            username = form.get('username', '').strip()
             password = form.get('password', '')
-            h = hashlib.sha256(password.encode('utf-8')).digest()
-            if len(password) > 256 or not hmac.compare_digest(h, PASSWORD_HASH):
+
+            if not username:
+                username = get_default_username()
+
+            success, err_msg = verify_windows_credentials(username, password)
+            if not success:
                 time.sleep(0.5)
-                self.send_page(render_login('Incorrect passkey. Please try again.'), 401)
+                self.send_page(render_login(err_msg, username), 401)
                 return
 
             token = secrets.token_urlsafe(32)
             csrf = secrets.token_urlsafe(32)
-            SESSIONS[token] = {'csrf': csrf, 'expires': time.time() + SESSION_LIFETIME}
+            SESSIONS[token] = {'csrf': csrf, 'expires': time.time() + SESSION_LIFETIME, 'user': username}
 
             self.send_page(
-                render_dashboard(csrf),
+                render_dashboard(csrf, username),
                 200,
                 [('Set-Cookie', f'doom_session={token}; Path=/; Max-Age={SESSION_LIFETIME}; HttpOnly; SameSite=Strict')]
             )
@@ -215,7 +357,6 @@ class DashboardHandler(BaseHTTPRequestHandler):
                 [('Set-Cookie', 'doom_session=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict')]
             )
             return
-
 
         # Remote Power Actions
         if self.path == '/action':
@@ -282,11 +423,13 @@ def main():
             print(f'[ERROR] Fallback binding to 0.0.0.0:{PORT} failed: {exc2}')
             sys.exit(1)
 
+    detected_user = get_default_username()
     print('=' * 65)
     print('  TheDoom Gateway & Infrastructure Telemetry')
     print(f'  Bound Address: {bind_ip}:{PORT}')
     print(f'  Tailscale Overlay Access: http://{TAILSCALE_IP}:{PORT}')
     print(f'  Localhost Access: http://localhost:{PORT}')
+    print(f'  Auth Engine: Native Windows Account (User: {detected_user or "Dynamic"})')
     print('  Develop by Yourhacker with ❤️')
     print('=' * 65)
     try:

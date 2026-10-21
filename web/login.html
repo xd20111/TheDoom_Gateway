@@ -235,7 +235,21 @@ body {
     transition: all 0.2s ease;
 }
 
-.cyber-password-input:focus {
+.cyber-text-input {
+    width: 100%;
+    padding: 12px 14px;
+    background: rgba(6, 11, 20, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 14px;
+    font-family: var(--font-mono);
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.cyber-password-input:focus,
+.cyber-text-input:focus {
     border-color: var(--neon-cyan);
     box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.25), 0 0 16px rgba(0, 240, 255, 0.15);
 }
@@ -346,31 +360,45 @@ body {
                     <img src="/YourHacker%20logo.png" alt="TheDoom Gateway" style="width: 32px; height: 32px; object-fit: contain; filter: drop-shadow(0 0 12px rgba(0, 255, 102, 0.65));">
                 </div>
                 <h2 class="auth-title">TheDoom Gateway</h2>
-                <p class="auth-sub">Enter passkey to access infrastructure telemetry</p>
+                <p class="auth-sub">Windows Account Authentication</p>
             </div>
-
-            
 
             {{ERROR_HTML}}
             <form method="post" action="/login" onsubmit="handleSubmitState(this)">
                 <div class="auth-input-group">
                     <div class="auth-input-label">
-                        <span>MASTER PASSKEY</span>
+                        <span>WINDOWS USERNAME</span>
+                    </div>
+                    <div class="auth-input-wrapper">
+                        <input class="cyber-text-input" id="username" name="username" type="text" 
+                               maxlength="256" required autocomplete="username" 
+                               value="{{DEFAULT_USERNAME}}"
+                               placeholder="Windows username (e.g. Deepak.Tak)">
+                    </div>
+                </div>
+
+                <div class="auth-input-group">
+                    <div class="auth-input-label">
+                        <span>WINDOWS PASSWORD</span>
                     </div>
                     <div class="auth-input-wrapper">
                         <input class="cyber-password-input" id="password" name="password" type="password" 
                                maxlength="256" required autocomplete="current-password" 
-                               placeholder="Enter passkey..." autofocus>
+                               placeholder="Enter Windows password..." autofocus>
                         <button type="button" class="btn-toggle-eye" onclick="togglePass()">Show</button>
                     </div>
                 </div>
+
                 <button type="submit" class="btn-cyber-login" id="btnSubmitLogin">
-                    <span>Authorize & Enter Node</span>
+                    <span>Sign In to Node</span>
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                         <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
                 </button>
+                <div style="margin-top: 14px; font-size: 11px; color: #64748b; text-align: center; font-family: var(--font-mono);">
+                    Authenticated live via Windows LSA / SAM
+                </div>
             </form>
         </div>
     </div>
@@ -382,7 +410,7 @@ body {
 </div>
 
 <footer class="cyber-bottom-footer">
-    <div>&copy; 2026 TheDoom Gateway · Develop by Yourhacker with ❤️</div>
+    <div>&copy; 2026 TheDoom Gateway · Develop by YourHacker with ❤️</div>
     <div>SYS_NODE: <span class="node-hex-val" id="cyberNodeId">DOOM-NODE-0000</span></div>
 </footer>
 

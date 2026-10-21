@@ -645,17 +645,60 @@
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-modal-cancel:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
         }
 
         .btn-modal-confirm {
-            padding: 9px 18px;
-            border: none;
+            padding: 9px 20px;
             border-radius: 6px;
-            color: #ffffff;
             font-family: var(--font-sans);
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            color: #ffffff !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-modal-confirm.btn-modal-red {
+            background: #df1b41 !important;
+            border: 1px solid #c81335 !important;
+            color: #ffffff !important;
+        }
+
+        .btn-modal-confirm.btn-modal-red:hover {
+            background: #b91c1c !important;
+            border-color: #991b1b !important;
+        }
+
+        .btn-modal-confirm.btn-modal-amber {
+            background: #d97706 !important;
+            border: 1px solid #b45309 !important;
+            color: #ffffff !important;
+        }
+
+        .btn-modal-confirm.btn-modal-amber:hover {
+            background: #b45309 !important;
+            border-color: #92400e !important;
+        }
+
+        .btn-modal-confirm.btn-modal-neutral {
+            background: var(--text-navy) !important;
+            border: 1px solid #06182a !important;
+            color: #ffffff !important;
+        }
+
+        .btn-modal-confirm.btn-modal-neutral:hover {
+            background: #1e3a5f !important;
+            border-color: #0f172a !important;
         }
 
         .signin-container {
@@ -822,6 +865,9 @@
                         <span class="badge-env"
                             style="background: rgba(0,255,102,0.12); color: #059669; border: 1px solid rgba(0,255,102,0.3); font-weight: 600; font-size: 11px; padding: 2px 8px; border-radius: 12px;"
                             id="navHostname">{{HOSTNAME}}</span>
+                        <span class="badge-env"
+                            style="background: rgba(99,91,255,0.08); color: var(--stripe-blurple); border: 1px solid rgba(99,91,255,0.22); font-weight: 600; font-size: 11px; padding: 2px 8px; border-radius: 12px;"
+                            id="navUser">{{AUTH_USER}}</span>
                     </div>
                     <span class="brand-sub"
                         style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">Infrastructure
@@ -1224,7 +1270,7 @@
             <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="font-weight: 600; color: var(--text-navy);">TheDoom Gateway v1.0</span>
                 <span>&bull;</span>
-                <span>Develop by Yourhacker with ❤️</span>
+                <span>Develop by YourHacker with ❤️</span>
             </div>
             <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">
                 Node Telemetry Uplink: <span style="color: #10b981; font-weight: 600;">ACTIVE</span>
@@ -1263,22 +1309,22 @@
                 title.innerText = "Confirm System Shutdown";
                 desc.innerText = "Are you sure you want to shut down this host? A 30-second abort window will be provided.";
                 btn.innerText = "Shut Down System";
-                btn.classList.add('btn-red');
+                btn.classList.add('btn-modal-red');
             } else if (action === 'restart') {
                 title.innerText = "Confirm System Restart";
                 desc.innerText = "Are you sure you want to reboot? Network access will briefly drop until the service restarts.";
                 btn.innerText = "Restart System";
-                btn.classList.add('btn-amber');
+                btn.classList.add('btn-modal-amber');
             } else if (action === 'hibernate') {
                 title.innerText = "Confirm Hibernation";
                 desc.innerText = "System will save working memory to SSD and power off. Wake-on-LAN required to resume.";
                 btn.innerText = "Hibernate Host";
-                btn.classList.add('btn-neutral');
+                btn.classList.add('btn-modal-neutral');
             } else if (action === 'lock') {
                 title.innerText = "Confirm Desktop Lock";
                 desc.innerText = "Instantly locks the Windows user session. Remote telemetry remains active.";
                 btn.innerText = "Lock Session";
-                btn.classList.add('btn-neutral');
+                btn.classList.add('btn-modal-neutral');
             }
             modal.classList.add('active');
         }
