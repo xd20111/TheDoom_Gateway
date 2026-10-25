@@ -1,85 +1,110 @@
 # TheDoom Gateway — Remote PC Control & Live System Monitor
 
-> **Develop by Yourhacker with ❤️**  
-> A simple, lightweight web dashboard to monitor your Windows PC and control it remotely from your phone, tablet, or another computer.
+> **Develop by YourHacker with ❤️**  
+> A lightweight, zero-dependency web dashboard to monitor your Windows PC hardware in real-time and control it remotely from any phone, tablet, or computer.
 
 ---
 
 ## ⚡ What Can You Do With This?
 
-TheDoom Gateway turns your computer into a remotely manageable machine through your web browser. You don't need to install any heavy software or sign up for cloud services.
+TheDoom Gateway turns your Windows computer into a remotely manageable machine through any modern web browser. You don't need to install any heavy software, install Python packages (`pip`), or sign up for cloud services.
 
-### 🎮 1. Remote PC Power Controls
-Control your PC's power from your phone or another laptop:
-* **Remote Shutdown**: Shut down your PC remotely with a 30-second warning countdown.
-* **Remote Restart**: Reboot your PC remotely whenever it feels slow or needs a restart.
-* **Emergency Abort / Cancel**: Accidentally pressed Shutdown or Restart? Click **Abort** within 30 seconds to immediately stop it.
-* **Lock Screen**: Lock your Windows desktop instantly if you walked away from your desk. All your programs stay running safely.
-* **Hibernate**: Put your PC into low-power hibernate mode without losing your open windows and files.
+### 🎮 1. Remote PC Power & Process Controls
+Control your PC's power state and active programs from your phone or another laptop:
+* **Remote Shutdown**: Shut down your PC remotely with an automatic 30-second warning countdown.
+* **Remote Restart**: Reboot your PC remotely whenever it needs a clean restart.
+* **Emergency Abort / Cancel**: Accidentally pressed Shutdown or Restart? Click **Abort** within 30 seconds to immediately cancel it.
+* **Lock Screen**: Lock your Windows desktop instantly when walking away from your desk. All open programs remain running safely.
+* **Hibernate**: Put your PC into low-power hibernate mode without losing your open windows and documents.
+* **End Task / Kill Process**: Terminate hung applications, frozen software, or heavy background processes with 1 click directly from the apps table.
 
-### 📊 2. Real-Time PC Activity Monitoring
-Keep an eye on what your computer is doing from anywhere:
+### 📊 2. Real-Time Hardware Telemetry
+Monitor your computer's health and performance live from anywhere:
 * **CPU & RAM Load**: Live percentage gauges showing processor load and memory used vs. free (e.g., `11.4 / 32.0 GB`).
-* **Graphics Card (GPU)**: See your graphics card model and active load.
-* **Live Internet Speeds**: Live download (`↓`) and upload (`↑`) speeds, plus total data used.
-* **Active Running Apps**: View the top programs using memory (Chrome, games, background apps) with a **live search bar** to find any running app by name or PID.
-* **Hard Drive Storage**: See all connected drives (`C:`, `D:`, USB drives) with free space and color-coded progress bars.
-* **Network & IP Addresses**: Displays all network adapters (Wi-Fi, Ethernet, Tailscale) with a **1-Click Copy** button for each IP address.
-* **Uptime & System Info**: See how long your computer has been running (`Uptime: 2d 4h 18m`) and Windows version.
+* **Graphics Card (GPU)**: Real-time detection of dedicated graphics cards (NVIDIA / AMD / Intel) with live load percentages.
+* **Power & Battery (UPS / Laptop)**: Real-time battery percentage, AC power status (`Plugged In` vs `On Battery`), charging state, and remaining battery runtime.
+* **Live Network Speeds**: Real-time download (`↓`) and upload (`↑`) throughput counters, plus total data consumed.
+* **Active Running Apps**: View top memory-consuming applications with a **live instant search filter** and **1-Click End Task** kill buttons.
+* **Hard Drive Storage**: Visual breakdown of all connected drives (`C:`, `D:`, external USB drives) with free space and color-coded progress bars.
+* **Network & IP Addresses**: Displays all network adapters (Wi-Fi, Ethernet, Tailscale) with a **1-Click Copy IP** button for each adapter.
+
+### 🛠️ 3. Windows Services Watchdog & Manager
+Inspect and control background Windows services right from the web browser:
+* **Service Status**: View active and installed Windows services and system daemons.
+* **1-Click Service Controls**: Start, Stop, or Restart Windows services directly from the dashboard.
+* **Live Search Filter**: Quickly filter through services (e.g., `Tailscale`, `WinDefend`, `spooler`).
+* **Clean Display**: Automatically hides uninstalled or unavailable services to keep your list clean and actionable.
+
+### 🩺 4. Advanced Hardware Health & Diagnostics
+Deep silicon telemetry and operational statistics:
+* **Hardware Specs**: Detailed CPU architecture, core count, frequency (MHz), and GPU accelerator models.
+* **System Uptime & Boot Time**: Displays system uptime (`2d 4h 18m`) and precise system boot timestamps.
+* **Kernel Diagnostics**: Real-time Win32 low-latency API health verification.
+
+### 📜 5. Security Audit Trail & Activity Log
+Complete transparency and security logging:
+* **Audit Trail**: Immutable record of all administrative operations performed through the gateway.
+* **Event Logging**: Logs sign-in successes/failures, client IP addresses, remote power commands, and service start/stop operations with exact timestamps.
+* **Log Controls**: Live refresh and clear log buttons directly inside the dashboard widget.
+
+### 🌗 6. Theme Toggle & Fluid Responsive UI
+Tailored for desktop monitors, tablets, and mobile screens:
+* **Light & Dark Mode**: Default crisp Light theme with an instant high-contrast Dark Mode toggle button.
+* **Zero Horizontal Scroll**: Locked column layouts ensure tables and widgets fit cleanly on mobile and laptop screens without horizontal sliders.
+* **Persistent Preferences**: Saves your theme choice automatically in your browser's local storage.
 
 ---
 
 ## 🔑 Native Windows Authentication (Zero Password Setup)
 
-You don't need to create or remember a separate dashboard passkey:
-* **Uses Your Real Windows Password**: Sign in using your existing Windows account username and password.
-* **Auto-Updates with Windows**: If you change your Windows password, it automatically reflects immediately on the web dashboard.
-* **Pre-Login Startup Support**: If configured to start on boot, you can access the dashboard and log in from your phone even when the PC is sitting on the Windows lock screen before anyone has physically signed in.
+You do not need to create or manage a separate password for the gateway:
+* **Uses Your Real Windows Account**: Sign in using your existing Windows account username and password.
+* **Auto-Updates with Windows**: Changing your Windows password automatically updates access on the web dashboard immediately.
+* **Pre-Login Boot Support**: When configured to run at boot, you can access the dashboard and log in from your phone even when the PC is at the Windows lock screen before anyone has signed in.
 
 ---
 
 ## 🚀 How to Use It
 
-### Step 1: Start the Dashboard on Your Windows PC
-Open Command Prompt or PowerShell in this folder and run:
-```powershell
-python thedoomcontrol.py
-```
+Getting started takes just one click:
 
-### Step 2: Open the Dashboard on Any Device
-Open your web browser (Chrome, Safari, Edge, etc.) on your phone, tablet, or laptop:
+### Option A: 1-Click Instant Run (Quick Start)
+Use this option to start the dashboard immediately on your PC:
+1. Double-click **`run_gateway.bat`**.
+2. Click **Yes** on the Windows Administrator prompt (UAC).
+3. The gateway launches silently in the background, your web browser opens automatically to `http://localhost:6969`, and the terminal window automatically closes.
 
-* **On the same PC**: Go to `http://localhost:6969`
-* **On your phone (connected to the same Wi-Fi)**: Go to `http://<YOUR-PC-IP>:6969` (for example, `http://192.168.1.50:6969`)
-* **From anywhere in the world (via Tailscale)**: Go to `http://100.64.0.2:6969` (or your PC's Tailscale IP)
+### Option B: 1-Click Windows Background Service Installer (Runs at Boot)
+Use this option to set up the gateway to start automatically every time your PC turns on:
+1. Double-click **`install_service.bat`** (or right-click and select **Run as Administrator**).
+2. Click **Yes** on the Windows Administrator prompt (UAC).
+3. The installer automatically:
+   * Sets **Local Network (LAN)** mode as default (`0.0.0.0:6969`).
+   * Automatically discovers and binds your machine's local IP address (zero hardcoded IPs).
+   * Registers auto-start in **Windows Startup** and **Task Scheduler** with highest elevation privileges.
+   * Starts the background service silently and opens your browser.
+   * The installer terminal automatically closes once complete.
 
-### Step 3: Sign In with Your Windows Account
-1. The **Windows Username** is pre-filled automatically (e.g. `xD.Tak`).
-2. Type your **Windows Account Password**.
-3. Click **Sign In to Node**, and your live dashboard will appear!
+> [!TIP]
+> **1-Click Boot Removal on Dashboard**: You do not need any separate uninstall script! You can enable or remove the boot auto-start service with 1 click directly inside the **Web Dashboard** under **Gateway & Boot Configuration**.
 
 ---
 
-## ⏰ How to Run on Startup (Before Desktop Login)
+### Step 2: Access from Your Phone, Tablet, or Another PC
 
-If you want TheDoom Gateway to start automatically when your computer powers on—even before anyone physically logs into Windows:
+Once the gateway is running, open any web browser (Chrome, Safari, Edge, Firefox) on your device:
 
-1. Press `Win + R`, type `taskschd.msc`, and press **Enter** to open **Task Scheduler**.
-2. Click **Create Task** (on the right pane).
-3. Under the **General** tab:
-   * Name: `TheDoom Gateway`
-   * Check **"Run whether user is logged on or not"**
-   * Check **"Run with highest privileges"**
-4. Under the **Triggers** tab:
-   * Click **New...** -> Begin the task: **At startup**.
-5. Under the **Actions** tab:
-   * Click **New...** -> Action: **Start a program**.
-   * Program/script: `python` (or full path to your python.exe).
-   * Add arguments: `thedoomcontrol.py`
-   * Start in: `c:\Users\xD.Tak\Downloads\TheDoom_Gateway` (or full path to theDoom_Gateway folder).
-6. Click **OK** and enter your Windows password.
+* **On the same PC**: Go to `http://localhost:6969`
+* **On your phone / any device on your Wi-Fi or LAN (DEFAULT)**: Go to `http://<YOUR-SYSTEM-IP>:6969` (for example, `http://192.168.1.100:6969` — visible on your dashboard under Interfaces)
+* **From anywhere outside your home (via Tailscale Mesh)**: Go to `http://<YOUR-TAILSCALE-IP>:6969`
 
-Now, whenever your computer boots up, TheDoom Gateway will be online and accessible from your phone before anyone logs in!
+---
+
+### Step 3: Sign In with Your Windows Account
+
+1. The **Windows Username** field is pre-filled automatically with your active Windows username.
+2. Enter your **Windows Password**.
+3. Click **Sign In to Node** to access the live dashboard!
 
 ---
 
@@ -87,47 +112,23 @@ Now, whenever your computer boots up, TheDoom Gateway will be online and accessi
 
 | Button | What It Does | Can You Cancel It? |
 | :--- | :--- | :--- |
-| **Shutdown** | Starts a 30-second timer on your PC before shutting down. | **Yes** — Click **Abort** on the dashboard within 30 seconds. |
-| **Restart** | Starts a 30-second timer before rebooting your PC. | **Yes** — Click **Abort** on the dashboard within 30 seconds. |
-| **Abort Shutdown** | Immediately cancels a pending shutdown or reboot. | N/A |
-| **Lock Workstation** | Instantly locks your Windows screen. Running apps stay open. | Unlock with your normal Windows PIN/password. |
-| **Hibernate** | Puts your PC to sleep, saving your open work to disk. | Press your PC power button to resume. |
+| **Shutdown** | Initiates a 30-second shutdown timer on your PC with full warning. | **Yes** — Click **Abort** on the dashboard within 30 seconds. |
+| **Restart** | Initiates a 30-second reboot timer on your PC. | **Yes** — Click **Abort** on the dashboard within 30 seconds. |
+| **Abort Shutdown** | Immediately cancels any pending shutdown or restart timer. | N/A |
+| **Lock Workstation** | Instantly locks your Windows screen. Running apps stay open. | Unlock with your standard Windows PIN or password. |
+| **Hibernate** | Puts your PC into low-power hibernate mode, saving open work to disk. | Press your PC power button to resume. |
 
 ---
 
-## ⚙️ Custom Settings
-
-You can customize the port or Tailscale IP before starting the server:
-
-### In PowerShell:
-```powershell
-# Change the port (default is 6969)
-$env:PORT = "8080"
-
-# Change the Tailscale bind IP (optional)
-$env:TAILSCALE_IP = "100.64.0.2"
-
-# Start the server
-python thedoomcontrol.py
-```
 
 ---
 
-## 📁 Files Included
+## 🔒 Privacy & Security
 
-* **`thedoomcontrol.py`** — The main server script with native Windows authentication and power dispatchers.
-* **`telemetry.py`** — Handles real-time system monitoring (CPU, RAM, GPU, network, disks).
-* **`web/dashboard.html`** — The clean, modern dashboard interface.
-* **`web/login.html`** — The login screen with 3D animation and Windows account login.
-
----
-
-## 🔒 Privacy & Safety
-
-* **100% Private**: Runs entirely on your own PC. No third-party servers, no analytics, no external accounts.
-* **Zero Installation**: Uses only built-in Windows and Python tools. No `pip install` required.
-* **Windows Security**: Passwords are authenticated directly through the Windows Security subsystem (SAM/LSA) and never saved or logged.
+* **100% Private**: Runs entirely on your local machine. No external servers, no third-party telemetry, no cloud accounts.
+* **Zero Dependency**: Built exclusively with the Python Standard Library and native Windows APIs. No `pip install` required.
+* **Native Security**: Passwords are authenticated directly against the Windows Local Security Authority (LSA / SAM) and are never stored or logged in plaintext.
 
 ---
 
-**Develop by Yourhacker with ❤️**
+**Develop by YourHacker with ❤️**

@@ -1,0 +1,2939 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard — TheDoom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #f6f9fc;
+            --card-bg: #ffffff;
+            --border-color: #e6ebf1;
+            --border-subtle: #f0f3f7;
+            --text-navy: #0a2540;
+            --text-slate: #425466;
+            --text-muted: #6b7c93;
+            --text-light: #8898aa;
+            --stripe-blurple: #635bff;
+            --stripe-blurple-hover: #534be5;
+            --stripe-blurple-light: #f4f3ff;
+            --danger-red: #df1b41;
+            --danger-red-bg: #fef1f2;
+            --danger-red-border: #fecdd3;
+            --warning-amber: #b76e00;
+            --warning-amber-bg: #fffbeb;
+            --warning-amber-border: #fde68a;
+            --success-green: #007a3d;
+            --success-green-bg: #d4f7dc;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --shadow-card: 0 13px 27px -5px rgba(50, 50, 93, 0.08), 0 8px 16px -8px rgba(0, 0, 0, 0.06), 0 -6px 16px -6px rgba(0, 0, 0, 0.02);
+            --shadow-sm: 0 2px 5px rgba(50, 50, 93, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        html,
+        body {
+            min-height: 100vh;
+            background-color: var(--bg-page);
+            color: var(--text-slate);
+            font-family: var(--font-sans);
+            display: flex;
+            flex-direction: column;
+            letter-spacing: -0.011em;
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+
+        .stripe-ribbon {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 360px;
+            background: linear-gradient(135deg, #f4f6fb 0%, #edf2f9 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 65%, 0 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .navbar {
+            position: relative;
+            z-index: 10;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 32px;
+        }
+
+        .nav-inner {
+            max-width: 1120px;
+            margin: 0 auto;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-gem {
+            width: 34px;
+            height: 34px;
+            background: var(--stripe-blurple);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(99, 91, 255, 0.3);
+        }
+
+        .brand-titles {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-titles h1 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-navy);
+        }
+
+        .badge-env {
+            background: #eef2f6;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .node-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--success-green-bg);
+            color: var(--success-green);
+            padding: 4px 10px;
+            border-radius: 980px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .node-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--success-green);
+        }
+
+        .btn-nav-action {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            color: var(--text-slate);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-nav-action:hover {
+            background: #f8fafc;
+            color: var(--text-navy);
+            border-color: #cbd5e1;
+        }
+
+        #themeToggleBtn {
+            background: #eef2ff !important;
+            border: 1.5px solid #818cf8 !important;
+            color: #3730a3 !important;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(99, 102, 241, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #themeToggleBtn:hover {
+            background: #e0e7ff !important;
+            border-color: #4f46e5 !important;
+            color: #312e81 !important;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+            transform: translateY(-1px);
+        }
+
+        #themeToggleBtn svg {
+            color: #6366f1;
+            stroke: #6366f1;
+        }
+
+        .main-wrapper {
+            position: relative;
+            z-index: 10;
+            max-width: 1120px;
+            width: 100%;
+            margin: 32px auto 60px;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 18px 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .metric-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .metric-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-light);
+        }
+
+        .metric-icon {
+            color: var(--text-muted);
+        }
+
+        .metric-val {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-navy);
+        }
+
+        .metric-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .progress-bar-thin {
+            width: 100%;
+            height: 4px;
+            background: #edf2f7;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 0.3s ease;
+        }
+
+        .fill-blue {
+            background: var(--stripe-blurple);
+        }
+
+        .fill-emerald {
+            background: #10b981;
+        }
+
+        .fill-amber {
+            background: #f59e0b;
+        }
+
+        .fill-cyan {
+            background: #0284c7;
+        }
+
+        .countdown-banner {
+            display: none;
+            padding: 16px 24px;
+            background: var(--danger-red-bg);
+            border: 1px solid var(--danger-red-border);
+            border-radius: 10px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .countdown-banner.active {
+            display: flex;
+        }
+
+        .countdown-info h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--danger-red);
+        }
+
+        .countdown-info p {
+            font-size: 13px;
+            color: var(--text-slate);
+            margin-top: 2px;
+        }
+
+        .btn-cancel-countdown {
+            background: var(--danger-red);
+            color: #ffffff;
+            border: none;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(223, 27, 65, 0.3);
+            transition: background 0.15s ease;
+        }
+
+        .btn-cancel-countdown:hover {
+            background: #c81335;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+            gap: 24px;
+            width: 100%;
+            min-width: 0;
+        }
+
+        .dashboard-grid>div {
+            min-width: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .content-box {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        .box-header {
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .box-header h2 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-navy);
+        }
+
+        .box-badge {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--stripe-blurple);
+            background: var(--stripe-blurple-light);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .search-strip {
+            padding: 12px 24px;
+            background: #fafbfc;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-input-wrapper svg {
+            position: absolute;
+            left: 10px;
+            color: var(--text-muted);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 7px 10px 7px 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: var(--font-sans);
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+
+        .search-box:focus {
+            border-color: var(--stripe-blurple);
+        }
+
+        .proc-table-scroll {
+            max-height: 420px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: relative;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f8fafc;
+            width: 100%;
+        }
+
+        .proc-table-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 0px;
+        }
+
+        .proc-table-scroll::-webkit-scrollbar-track {
+            background: #f8fafc;
+        }
+
+        .proc-table-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .proc-table-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .proc-table-scroll .proc-table thead th {
+            position: sticky;
+            top: 0;
+            background: #ffffff;
+            z-index: 2;
+            box-shadow: 0 1px 0 var(--border-subtle);
+        }
+
+        .proc-table {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+            font-size: 12.5px;
+        }
+
+        .proc-table th {
+            text-align: left;
+            padding: 9px 12px;
+            background: #ffffff;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .proc-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-slate);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .proc-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .proc-table tr:hover td {
+            background: #fbfcfd;
+        }
+
+        .proc-name-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: var(--text-navy);
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .proc-name-cell>div,
+        .proc-name-cell>span {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .proc-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .proc-mem-cell {
+            font-weight: 600;
+            color: var(--text-navy);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+        }
+
+        .tag-active {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .ip-pill {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-navy);
+            background: #f0f4f8;
+            padding: 2px 7px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            display: inline-block;
+        }
+
+        .btn-copy-ip {
+            border: 1px solid var(--border-color);
+            background: #ffffff;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-copy-ip:hover {
+            background: #f1f5f9;
+            color: var(--text-navy);
+        }
+
+        .btn-kill-proc {
+            padding: 4px 9px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--danger-red);
+            background: #ffffff;
+            border: 1px solid #fecdd3;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 2px rgba(223, 27, 65, 0.05);
+        }
+
+        .btn-kill-proc:hover {
+            background: var(--danger-red);
+            border-color: var(--danger-red);
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(223, 27, 65, 0.25);
+        }
+
+        .power-deck {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .action-row {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.15s ease;
+            flex-wrap: wrap;
+        }
+
+        .action-row:last-child {
+            border-bottom: none;
+        }
+
+        .action-row:hover {
+            background: #fcfdfe;
+        }
+
+        .action-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .action-icon-disc {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .disc-red {
+            background: var(--danger-red-bg);
+            color: var(--danger-red);
+        }
+
+        .disc-amber {
+            background: var(--warning-amber-bg);
+            color: var(--warning-amber);
+        }
+
+        .disc-slate {
+            background: #f1f5f9;
+            color: var(--text-slate);
+        }
+
+        .disc-blue {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .action-text {
+            min-width: 0;
+        }
+
+        .action-text h3 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-navy);
+            word-break: break-word;
+        }
+
+        .action-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            word-break: break-word;
+        }
+
+        .btn-action {
+            font-family: var(--font-sans);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .btn-red {
+            background: #ffffff;
+            color: var(--danger-red);
+            border-color: #fca5a5;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-red:hover {
+            background: var(--danger-red);
+            border-color: var(--danger-red);
+            color: #ffffff;
+        }
+
+        .btn-amber {
+            background: #ffffff;
+            color: var(--warning-amber);
+            border-color: #fde68a;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-amber:hover {
+            background: #d97706;
+            border-color: #d97706;
+            color: #ffffff;
+        }
+
+        .btn-neutral {
+            background: #ffffff;
+            color: var(--text-navy);
+            border-color: var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-neutral:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .tunnel-meta-list {
+            padding: 14px 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-subtle);
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .meta-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .meta-k {
+            color: var(--text-muted);
+            flex-shrink: 0;
+            font-size: 12px;
+        }
+
+        .meta-v {
+            font-weight: 600;
+            color: var(--text-navy);
+            text-align: right;
+            word-break: break-word;
+            max-width: 65%;
+            font-size: 12px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 37, 64, 0.4);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+            padding: 28px;
+            text-align: left;
+        }
+
+        .modal-box h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-navy);
+        }
+
+        .modal-box p {
+            font-size: 14px;
+            color: var(--text-slate);
+            line-height: 1.5;
+            margin: 10px 0 24px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-modal-cancel {
+            padding: 9px 18px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-navy);
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-modal-cancel:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .btn-modal-confirm {
+            padding: 9px 20px;
+            border-radius: 6px;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+            background: #635bff !important;
+            border: 1px solid #4f46e5 !important;
+            color: #ffffff !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-modal-confirm.btn-modal-red,
+        .btn-modal-red {
+            background: #df1b41 !important;
+            border: 1px solid #c81335 !important;
+            color: #ffffff !important;
+        }
+
+        .btn-modal-confirm.btn-modal-red:hover,
+        .btn-modal-red:hover {
+            background: #b91c1c !important;
+            border-color: #991b1b !important;
+        }
+
+        .btn-modal-confirm.btn-modal-amber,
+        .btn-modal-amber {
+            background: #d97706 !important;
+            border: 1px solid #b45309 !important;
+            color: #ffffff !important;
+        }
+
+        .btn-modal-confirm.btn-modal-amber:hover,
+        .btn-modal-amber:hover {
+            background: #b45309 !important;
+            border-color: #92400e !important;
+        }
+
+        .btn-modal-confirm.btn-modal-neutral,
+        .btn-modal-neutral {
+            background: #0f172a !important;
+            border: 1px solid #020617 !important;
+            color: #ffffff !important;
+        }
+
+        .btn-modal-confirm.btn-modal-neutral:hover,
+        .btn-modal-neutral:hover {
+            background: #1e3a5f !important;
+            border-color: #0f172a !important;
+        }
+
+        .signin-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .signin-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-card);
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .signin-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .signin-logo {
+            width: 38px;
+            height: 38px;
+            background: var(--stripe-blurple);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+        }
+
+        .signin-titles h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-navy);
+        }
+
+        .signin-titles p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .stripe-field {
+            margin-bottom: 20px;
+        }
+
+        .stripe-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-navy);
+            margin-bottom: 8px;
+        }
+
+        .stripe-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .stripe-input {
+            width: 100%;
+            padding: 11px 44px 11px 14px;
+            background: #ffffff;
+            border: 1px solid #d8e0ea;
+            border-radius: 6px;
+            color: var(--text-navy);
+            font-size: 14px;
+            outline: none;
+        }
+
+        .stripe-input:focus {
+            border-color: var(--stripe-blurple);
+            box-shadow: 0 0 0 4px rgba(99, 91, 255, 0.15);
+        }
+
+        .btn-toggle-view {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-stripe-submit {
+            width: 100%;
+            margin-top: 24px;
+            padding: 13px;
+            background: var(--stripe-blurple);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11);
+        }
+
+        .error-banner {
+            padding: 12px 16px;
+            background: var(--danger-red-bg);
+            border: 1px solid var(--danger-red-border);
+            color: var(--danger-red);
+            font-size: 13px;
+            margin-bottom: 18px;
+            border-radius: 6px;
+        }
+
+        /* ==================== THEME: DARK MODE ==================== */
+        [data-theme="dark"] {
+            --bg-page: #0b0f17;
+            --card-bg: #121824;
+            --border-color: #1e293b;
+            --border-subtle: #192231;
+            --text-navy: #f8fafc;
+            --text-slate: #cbd5e1;
+            --text-muted: #94a3b8;
+            --text-light: #64748b;
+            --stripe-blurple: #818cf8;
+            --stripe-blurple-hover: #6366f1;
+            --stripe-blurple-light: rgba(99, 102, 241, 0.15);
+            --danger-red: #f87171;
+            --danger-red-bg: rgba(239, 68, 68, 0.12);
+            --danger-red-border: rgba(239, 68, 68, 0.3);
+            --warning-amber: #fbbf24;
+            --warning-amber-bg: rgba(245, 158, 11, 0.12);
+            --warning-amber-border: rgba(245, 158, 11, 0.3);
+            --success-green: #34d399;
+            --success-green-bg: rgba(16, 185, 129, 0.12);
+            --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="dark"] body {
+            background-color: var(--bg-page);
+            color: var(--text-slate);
+        }
+
+        [data-theme="dark"] .navbar {
+            background: #101622;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        [data-theme="dark"] .stripe-ribbon {
+            background: linear-gradient(135deg, #0f172a 0%, #090d16 100%);
+            opacity: 0.7;
+        }
+
+        [data-theme="dark"] .metric-card,
+        [data-theme="dark"] .content-box {
+            background: var(--card-bg);
+            border-color: var(--border-color);
+            box-shadow: var(--shadow-card);
+        }
+
+        [data-theme="dark"] .box-header {
+            border-bottom-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .search-strip {
+            background: #0f1724;
+            border-bottom-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .search-box {
+            background: #151d2c;
+            color: var(--text-navy);
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .proc-table th {
+            background: #121824;
+            border-bottom-color: var(--border-color);
+            color: var(--text-light);
+        }
+
+        [data-theme="dark"] .proc-table td {
+            border-bottom-color: var(--border-subtle);
+        }
+
+        [data-theme="dark"] .proc-table tr:hover td {
+            background: #172030;
+        }
+
+        [data-theme="dark"] .proc-table-scroll thead th {
+            background: #121824;
+            box-shadow: 0 1px 0 var(--border-color);
+        }
+
+        [data-theme="dark"] .proc-table-scroll::-webkit-scrollbar-track {
+            background: #0f1724;
+        }
+
+        [data-theme="dark"] .proc-table-scroll::-webkit-scrollbar-thumb {
+            background: #1e293b;
+        }
+
+        [data-theme="dark"] .btn-nav-action {
+            background: #151d2c;
+            border-color: #27354a;
+            color: var(--text-slate);
+        }
+
+        [data-theme="dark"] .btn-nav-action:hover {
+            background: #1c2638;
+            color: #ffffff;
+            border-color: #3b82f6;
+        }
+
+        [data-theme="dark"] #themeToggleBtn {
+            background: rgba(251, 191, 36, 0.16) !important;
+            border: 1.5px solid #fbbf24 !important;
+            color: #fef08a !important;
+            font-weight: 600;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);
+        }
+
+        [data-theme="dark"] #themeToggleBtn:hover {
+            background: rgba(251, 191, 36, 0.28) !important;
+            border-color: #fde047 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 16px rgba(251, 191, 36, 0.5);
+            transform: translateY(-1px);
+        }
+
+        [data-theme="dark"] #themeToggleBtn svg {
+            color: #fbbf24;
+            stroke: #fbbf24;
+        }
+
+        [data-theme="dark"] .modal-box {
+            background: #121824;
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .btn-modal-cancel {
+            background: #172030;
+            border-color: #27354a;
+            color: var(--text-slate);
+        }
+
+        [data-theme="dark"] .btn-kill-proc {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        [data-theme="dark"] .btn-kill-proc:hover {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .tag-active {
+            background: rgba(148, 163, 184, 0.12);
+            color: #cbd5e1;
+        }
+
+        [data-theme="dark"] .ip-pill {
+            background: #172030;
+            border-color: #27354a;
+            color: #e2e8f0;
+        }
+
+        [data-theme="dark"] .btn-copy-ip {
+            background: #151d2c;
+            border-color: #27354a;
+            color: var(--text-slate);
+        }
+
+        [data-theme="dark"] .btn-copy-ip:hover {
+            background: #1c2638;
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .action-row:hover {
+            background: #172030;
+        }
+
+        [data-theme="dark"] .btn-action.btn-neutral {
+            background: #151d2c;
+            border-color: #27354a;
+            color: #f8fafc;
+        }
+
+        [data-theme="dark"] .btn-action.btn-neutral:hover {
+            background: #1e293b;
+            border-color: #3b82f6;
+        }
+
+        [data-theme="dark"] .brand-logo-badge {
+            background: #151d2c !important;
+            border-color: #27354a !important;
+        }
+
+        [data-theme="dark"] .progress-bar-thin {
+            background: #1e293b;
+        }
+
+        /* ==================== WINDOWS SERVICES & ACTION BUTTONS ==================== */
+        .tag-svc-running {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 99px;
+            background: var(--success-green-bg);
+            color: var(--success-green);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .tag-svc-stopped {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 99px;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        [data-theme="dark"] .tag-svc-stopped {
+            background: rgba(148, 163, 184, 0.1);
+            color: #94a3b8;
+        }
+
+        .btn-svc-action {
+            font-family: var(--font-sans);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 4px;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+
+        .btn-svc-restart {
+            background: #ffffff;
+            color: var(--stripe-blurple);
+            border-color: rgba(99, 91, 255, 0.3);
+        }
+
+        .btn-svc-restart:hover {
+            background: var(--stripe-blurple);
+            color: #ffffff;
+        }
+
+        .btn-svc-start {
+            background: #ffffff;
+            color: var(--success-green);
+            border-color: rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-svc-start:hover {
+            background: #10b981;
+            color: #ffffff;
+        }
+
+        .btn-svc-stop {
+            background: #ffffff;
+            color: var(--danger-red);
+            border-color: rgba(223, 27, 65, 0.3);
+        }
+
+        .btn-svc-stop:hover {
+            background: var(--danger-red);
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .btn-svc-action {
+            background: #172030;
+        }
+
+        /* ==================== GATEWAY & BOOT CONFIGURATION ==================== */
+        .btn-action-primary {
+            background: var(--stripe-blurple);
+            color: #ffffff;
+            border: 1px solid var(--stripe-blurple-hover);
+            box-shadow: 0 2px 4px rgba(99, 91, 255, 0.25);
+        }
+
+        .btn-action-primary:hover {
+            background: var(--stripe-blurple-hover);
+        }
+
+        .btn-action-danger {
+            background: #ffffff;
+            color: var(--danger-red);
+            border: 1px solid var(--danger-red-border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-action-danger:hover {
+            background: var(--danger-red);
+            border-color: var(--danger-red);
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .btn-action-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        [data-theme="dark"] .btn-action-danger:hover {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
+        .net-choice-deck {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .net-choice-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: #ffffff;
+        }
+
+        .net-choice-card:hover {
+            border-color: var(--stripe-blurple);
+            background: #fbfcfd;
+        }
+
+        [data-theme="dark"] .net-choice-card {
+            background: #151d2c;
+            border-color: var(--border-color);
+        }
+
+        [data-theme="dark"] .net-choice-card:hover {
+            background: #1a2335;
+            border-color: var(--stripe-blurple);
+        }
+
+        .net-choice-card input[type="radio"] {
+            margin-top: 3px;
+            accent-color: var(--stripe-blurple);
+        }
+
+        /* ==================== AUDIT TRAIL / LOGS ==================== */
+        .audit-trail-scroll {
+            max-height: 280px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f8fafc;
+        }
+
+        [data-theme="dark"] .audit-trail-scroll {
+            scrollbar-color: #1e293b #0f1724;
+        }
+
+        .audit-item {
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 12px;
+            transition: background 0.15s ease;
+        }
+
+        .audit-item:last-child {
+            border-bottom: none;
+        }
+
+        .audit-item:hover {
+            background: #fafbfc;
+        }
+
+        [data-theme="dark"] .audit-item:hover {
+            background: #172030;
+        }
+
+        .tag-audit {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .tag-audit-auth {
+            background: rgba(99, 91, 255, 0.12);
+            color: var(--stripe-blurple);
+            border: 1px solid rgba(99, 91, 255, 0.25);
+        }
+
+        .tag-audit-power {
+            background: var(--danger-red-bg);
+            color: var(--danger-red);
+            border: 1px solid var(--danger-red-border);
+        }
+
+        .tag-audit-proc {
+            background: var(--warning-amber-bg);
+            color: var(--warning-amber);
+            border: 1px solid var(--warning-amber-border);
+        }
+
+        .tag-audit-service {
+            background: rgba(16, 185, 129, 0.12);
+            color: #059669;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+        }
+
+        .tag-audit-config {
+            background: rgba(2, 132, 199, 0.12);
+            color: #0284c7;
+            border: 1px solid rgba(2, 132, 199, 0.25);
+        }
+
+        @media (max-width: 1080px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-wrapper {
+                max-width: 860px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .metrics-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .metrics-row {
+                grid-template-columns: 1fr;
+            }
+
+            .navbar {
+                padding: 0 16px;
+            }
+
+            .nav-inner {
+                height: auto;
+                padding: 12px 0;
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .nav-right {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+
+            .main-wrapper {
+                padding: 0 12px;
+                margin: 16px auto 40px;
+            }
+
+            .box-header {
+                padding: 14px 16px;
+            }
+
+            .proc-table th,
+            .proc-table td {
+                padding: 10px 14px;
+            }
+
+            .action-row {
+                padding: 14px 16px;
+            }
+
+            .tunnel-meta-list {
+                padding: 12px 16px 16px;
+            }
+
+            .meta-v {
+                max-width: 100%;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="stripe-ribbon"></div>
+
+    <!-- Master Top Navbar with YourHacker Logo -->
+    <header class="navbar">
+        <div class="nav-inner">
+            <div class="nav-left">
+                <div class="brand-logo-badge"
+                    style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: #ffffff; border-radius: 9px; border: 1px solid var(--border-color); box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,255,102,0.18); overflow: hidden; padding: 2px;">
+                    <img src="/YourHacker%20logo.png" alt="TheDoom Gateway"
+                        style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 6px rgba(0,255,102,0.5));">
+                </div>
+                <div class="brand-titles">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h1
+                            style="font-size: 16px; font-weight: 700; color: var(--text-navy); margin: 0; letter-spacing: -0.2px;">
+                            TheDoom Gateway</h1>
+                        <span class="badge-env"
+                            style="background: rgba(0,255,102,0.12); color: #059669; border: 1px solid rgba(0,255,102,0.3); font-weight: 600; font-size: 11px; padding: 2px 8px; border-radius: 12px;"
+                            id="navHostname">{{HOSTNAME}}</span>
+                        <span class="badge-env"
+                            style="background: rgba(99,91,255,0.08); color: var(--stripe-blurple); border: 1px solid rgba(99,91,255,0.22); font-weight: 600; font-size: 11px; padding: 2px 8px; border-radius: 12px;"
+                            id="navUser">{{AUTH_USER}}</span>
+                    </div>
+                    <span class="brand-sub"
+                        style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">Infrastructure
+                        Telemetry & Remote Control</span>
+                </div>
+            </div>
+            <div class="nav-right">
+                <div class="node-pill">
+                    <span class="node-dot"></span>
+                    <span id="navIfaceCount">{{IFACE_COUNT}} Active Interfaces</span>
+                </div>
+                <button class="btn-nav-action" id="themeToggleBtn" onclick="toggleTheme()"
+                    title="Toggle Dark/Light Mode">
+                    <svg id="themeIconSun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.2" style="display: none;">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg id="themeIconMoon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.2">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <span id="themeToggleText">Dark Mode</span>
+                </button>
+                <button class="btn-nav-action" onclick="refreshTelemetry()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                    </svg>
+                    <span>Sync</span>
+                </button>
+                <form method="post" action="/logout" style="margin: 0;">
+                    <input type="hidden" name="csrf" value="__CSRF_TOKEN__">
+                    <button type="submit" class="btn-nav-action">
+                        <span>Sign Out</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-wrapper">
+        <!-- Active Countdown Alert Banner -->
+        <div class="countdown-banner" id="countdownBanner">
+            <div class="countdown-info">
+                <h3 id="countdownTitle">Shutting down in 30 seconds</h3>
+                <p>Graceful power event in progress. Windows will terminate open processes.</p>
+            </div>
+            <button class="btn-cancel-countdown" onclick="cancelCountdown()">Abort Shutdown (shutdown /a)</button>
+        </div>
+
+        <!-- Top Metrics Strip: Real-time CPU, RAM, GPU, Throughput, Storage, Power -->
+        <div class="metrics-row">
+            <!-- Metric 1: Real-time CPU Utilization Gauge -->
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-title">CPU Utilization</span>
+                    <span class="metric-icon" style="color: #635bff;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                            <rect x="9" y="9" width="6" height="6"></rect>
+                            <line x1="9" y1="1" x2="9" y2="4"></line>
+                            <line x1="15" y1="1" x2="15" y2="4"></line>
+                            <line x1="9" y1="20" x2="9" y2="23"></line>
+                            <line x1="15" y1="20" x2="15" y2="23"></line>
+                            <line x1="20" y1="9" x2="23" y2="9"></line>
+                            <line x1="20" y1="14" x2="23" y2="14"></line>
+                            <line x1="1" y1="9" x2="4" y2="9"></line>
+                            <line x1="1" y1="14" x2="4" y2="14"></line>
+                        </svg>
+                    </span>
+                </div>
+                <div class="metric-val" id="cpuVal">{{CPU_VAL}}</div>
+                <div class="progress-bar-thin">
+                    <div class="bar-fill" id="cpuBar"
+                        style="background: linear-gradient(90deg, #635bff 0%, #38bdf8 100%); width: {{CPU_PERCENT}}%;">
+                    </div>
+                </div>
+                <div class="metric-sub" id="cpuSub">{{CPU_SUB}}</div>
+            </div>
+
+            <!-- Metric 2: Real-time RAM Utilization Gauge -->
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-title">System RAM</span>
+                    <span class="metric-icon" style="color: #0284c7;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="2" y="2" width="20" height="20" rx="4"></rect>
+                            <path d="M6 18h12"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="metric-val" id="ramVal">{{RAM_VAL}}</div>
+                <div class="progress-bar-thin">
+                    <div class="bar-fill fill-blue" id="ramBar" style="width: {{RAM_PERCENT}}%;"></div>
+                </div>
+                <div class="metric-sub" id="ramSub">{{RAM_SUB}}</div>
+            </div>
+
+            <!-- Metric 3: Real-time GPU Acceleration -->
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-title">GPU Engine</span>
+                    <span class="metric-icon" style="color: #a855f7;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                    </span>
+                </div>
+                <div class="metric-val" id="gpuVal"
+                    style="font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+                    title="{{GPU_NAME}}">{{GPU_NAME}}</div>
+                <div class="progress-bar-thin">
+                    <div class="bar-fill" id="gpuBar"
+                        style="background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%); width: {{GPU_PERCENT}}%;">
+                    </div>
+                </div>
+                <div class="metric-sub" id="gpuSub">{{GPU_SUB}}</div>
+            </div>
+
+            <!-- Metric 4: Live Network Throughput -->
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-title">Network Throughput</span>
+                    <span class="metric-icon" style="color: #00ff66;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                            <polyline points="17 14 12 9 7 14"></polyline>
+                            <line x1="12" y1="9" x2="12" y2="21"></line>
+                        </svg>
+                    </span>
+                </div>
+                <div class="metric-val" id="netSpeedVal"
+                    style="font-size: 16px; font-family: 'JetBrains Mono', monospace;">
+                    {{NET_SPEED_VAL}}
+                </div>
+                <div class="progress-bar-thin">
+                    <div class="bar-fill fill-emerald" style="width: 100%;"></div>
+                </div>
+                <div class="metric-sub" id="netTotalSub">{{NET_TOTAL_SUB}}</div>
+            </div>
+
+            <!-- Metric 5: Primary Storage (C:) -->
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-title">Primary Storage (C:)</span>
+                    <span class="metric-icon" style="color: #f59e0b;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                        </svg>
+                    </span>
+                </div>
+                <div class="metric-val" id="diskVal">{{PRIMARY_DISK_VAL}}</div>
+                <div class="progress-bar-thin">
+                    <div class="bar-fill fill-emerald" id="diskBar" style="width: {{PRIMARY_DISK_PERCENT}}%;"></div>
+                </div>
+                <div class="metric-sub" id="diskSub">{{PRIMARY_DISK_SUB}}</div>
+            </div>
+
+            <!-- Metric 6: Real-time Power & Battery Source -->
+            <div class="metric-card">
+                <div class="metric-top">
+                    <span class="metric-title">Power & Battery</span>
+                    <span class="metric-icon" style="color: #10b981;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="2" y="7" width="16" height="10" rx="2" ry="2"></rect>
+                            <line x1="22" y1="11" x2="22" y2="13"></line>
+                            <line x1="6" y1="11" x2="6" y2="13"></line>
+                            <line x1="10" y1="11" x2="10" y2="13"></line>
+                        </svg>
+                    </span>
+                </div>
+                <div class="metric-val" id="powerVal">{{POWER_VAL}}</div>
+                <div class="progress-bar-thin">
+                    <div class="bar-fill" id="powerBar" style="background: {{POWER_COLOR}}; width: {{POWER_PERCENT}}%;">
+                    </div>
+                </div>
+                <div class="metric-sub" id="powerSub">{{POWER_SUB}}</div>
+            </div>
+        </div>
+
+        <!-- Main 2-Column Split -->
+        <div class="dashboard-grid">
+            <!-- Left Column: Active Applications & All Disks -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <!-- Box 1: Active Running Applications -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <h2>Active Running Applications</h2>
+                        <span class="box-badge" id="procCount">{{PROC_COUNT}} Total Tasks</span>
+                    </div>
+
+                    <!-- Search Filter Bar -->
+                    <div class="search-strip">
+                        <div class="search-input-wrapper">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" class="search-box" id="procFilter" placeholder="Filter processes..."
+                                oninput="filterProcesses()">
+                        </div>
+                    </div>
+
+                    <div class="proc-table-scroll">
+                        <table class="proc-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 36%;">Application</th>
+                                    <th style="width: 14%;">PID</th>
+                                    <th style="width: 20%;">Memory</th>
+                                    <th style="width: 14%;">Status</th>
+                                    <th style="width: 16%; text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="procTableBody">
+                                {{PROC_ROWS}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Box 2: Windows Services Watchdog & Manager -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div
+                                style="width: 28px; height: 28px; border-radius: 6px; background: rgba(16,185,129,0.1); display: flex; align-items: center; justify-content: center; color: #10b981;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
+                                    <path
+                                        d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 style="font-size: 15px; font-weight: 700; color: var(--text-navy); margin: 0;">
+                                    Windows Services Watchdog</h2>
+                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Kernel daemons &
+                                    background service controls</p>
+                            </div>
+                        </div>
+                        <span class="box-badge" id="svcCountBadge"
+                            style="background: rgba(16,185,129,0.1); color: #059669; border: 1px solid rgba(16,185,129,0.25);">{{SERVICES_RUNNING_COUNT}}
+                            / {{SERVICES_COUNT}} Active</span>
+                    </div>
+
+                    <!-- Search Filter Bar for Services -->
+                    <div class="search-strip">
+                        <div class="search-input-wrapper">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" class="search-box" id="svcFilter"
+                                placeholder="Filter services (e.g. Tailscale, WinDefend, spooler)..."
+                                oninput="filterServices()">
+                        </div>
+                    </div>
+
+                    <div class="proc-table-scroll" style="max-height: 380px;">
+                        <table class="proc-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 54%;">Service Name & Daemon</th>
+                                    <th style="width: 22%;">Status</th>
+                                    <th style="width: 24%; text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="svcTableBody">
+                                {{SERVICES_ROWS}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Box 3: All Disks & Storage Space -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div
+                                style="width: 28px; height: 28px; border-radius: 6px; background: rgba(99,91,255,0.1); display: flex; align-items: center; justify-content: center; color: var(--stripe-blurple);">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
+                                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 style="font-size: 15px; font-weight: 700; color: var(--text-navy); margin: 0;">All
+                                    Disks & Storage Space</h2>
+                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Connected drives and
+                                    capacity allocation</p>
+                            </div>
+                        </div>
+                        <span class="box-badge" id="diskCountBadge">{{DISK_COUNT}} Volumes</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px 20px;"
+                        id="disksContainer">
+                        {{DISKS_HTML}}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Remote Power Actions, Network Interfaces & Specs -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+                <!-- Box 1: Remote Power Actions -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <h2>Remote Power Actions</h2>
+                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Interlocked</span>
+                    </div>
+
+                    <form id="actionForm" method="post" action="/action">
+                        <input type="hidden" name="csrf" value="__CSRF_TOKEN__">
+                        <input type="hidden" id="selectedAction" name="action" value="">
+
+                        <div class="power-deck">
+                            <!-- SHUT DOWN -->
+                            <div class="action-row">
+                                <div class="action-left">
+                                    <div class="action-icon-disc disc-red">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.2">
+                                            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+                                            <line x1="12" y1="2" x2="12" y2="12"></line>
+                                        </svg>
+                                    </div>
+                                    <div class="action-text">
+                                        <h3>Shut Down {{HOSTNAME}}</h3>
+                                        <p>30-second graceful power down</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-action btn-red" onclick="openModal('shutdown')">Shut
+                                    Down</button>
+                            </div>
+
+                            <!-- RESTART -->
+                            <div class="action-row">
+                                <div class="action-left">
+                                    <div class="action-icon-disc disc-amber">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.2">
+                                            <polyline points="23 4 23 10 17 10"></polyline>
+                                            <polyline points="1 20 1 14 7 14"></polyline>
+                                            <path
+                                                d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15">
+                                            </path>
+                                        </svg>
+                                    </div>
+                                    <div class="action-text">
+                                        <h3>Restart {{HOSTNAME}}</h3>
+                                        <p>Reboot and restore Tailscale</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-action btn-amber"
+                                    onclick="openModal('restart')">Restart</button>
+                            </div>
+
+                            <!-- HIBERNATE -->
+                            <div class="action-row">
+                                <div class="action-left">
+                                    <div class="action-icon-disc disc-slate">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.2">
+                                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="action-text">
+                                        <h3>Hibernate Host</h3>
+                                        <p>Dump RAM to SSD and sleep</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-action btn-neutral"
+                                    onclick="openModal('hibernate')">Hibernate</button>
+                            </div>
+
+                            <!-- LOCK WORKSTATION -->
+                            <div class="action-row">
+                                <div class="action-left">
+                                    <div class="action-icon-disc disc-blue">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2.2">
+                                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="action-text">
+                                        <h3>Lock Desktop Session</h3>
+                                        <p>Instantly locks Windows session</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-action btn-neutral"
+                                    onclick="openModal('lock')">Lock</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Box 2: Gateway & Boot Service Configuration -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div
+                                style="width: 28px; height: 28px; border-radius: 6px; background: rgba(99,91,255,0.1); display: flex; align-items: center; justify-content: center; color: var(--stripe-blurple);">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
+                                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                                    <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                                    <line x1="6" y1="18" x2="6.01" y2="18"></line>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 style="font-size: 15px; font-weight: 700; color: var(--text-navy); margin: 0;">
+                                    Gateway & Boot Configuration</h2>
+                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Boot persistence &
+                                    network endpoint binding</p>
+                            </div>
+                        </div>
+                        <span id="bootStatusBadge" class="{{BOOT_STATUS_BADGE}}">{{BOOT_STATUS_TEXT}}</span>
+                    </div>
+
+                    <div style="padding: 18px 22px; display: flex; flex-direction: column; gap: 18px;">
+                        <!-- Boot Auto-Start Section -->
+                        <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 16px;">
+                            <div
+                                style="display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 13px; color: var(--text-navy);">Auto-Start
+                                        at Windows Boot</div>
+                                    <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                                        Registered as Windows background task (<code>TheDoom_Gateway</code>) under
+                                        <code>SYSTEM</code>. Starts before login.
+                                    </p>
+                                </div>
+                                <button type="button" id="btnBootToggle" data-action="{{BOOT_BTN_ACTION}}"
+                                    class="btn-action {{BOOT_BTN_CLASS}}" onclick="toggleBootAutoStart()"
+                                    style="margin-left: auto;">
+                                    {{BOOT_BTN_TEXT}}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Access Mode Selector Section -->
+                        <div>
+                            <div
+                                style="font-weight: 600; font-size: 13px; color: var(--text-navy); margin-bottom: 4px;">
+                                Network Access Mode</div>
+                            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Choose which
+                                network interface TheDoom Gateway binds to:</p>
+
+                            <div class="net-choice-deck">
+                                <label class="net-choice-card">
+                                    <input type="radio" name="accessModeRadio" value="lan" {{ACCESS_MODE_LAN_CHECKED}}>
+                                    <div style="flex: 1;">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <span
+                                                style="font-weight: 600; font-size: 13px; color: var(--text-navy);">Local
+                                                Network (0.0.0.0 LAN)</span>
+                                            <span
+                                                style="font-size: 10px; font-weight: 700; text-transform: uppercase; background: rgba(16,185,129,0.15); color: #059669; padding: 2px 7px; border-radius: 10px; border: 1px solid rgba(16,185,129,0.3);">DEFAULT</span>
+                                        </div>
+                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">
+                                            Accessible to any phone, laptop, or PC on your Wi-Fi/Ethernet subnet via
+                                            system-assigned IP (<code
+                                                style="font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text-navy); background: rgba(10,37,64,0.06); padding: 1px 5px; border-radius: 4px;">http://{{DETECTED_LAN_IP}}:{{PORT}}</code>).
+                                        </div>
+                                    </div>
+                                </label>
+
+                                <label class="net-choice-card">
+                                    <input type="radio" name="accessModeRadio" value="tailscale"
+                                        {{ACCESS_MODE_TAILSCALE_CHECKED}}>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; font-size: 13px; color: var(--text-navy);">
+                                            Tailscale Mesh (Secure Remote)</div>
+                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">
+                                            {{TAILSCALE_DESC}}
+                                        </div>
+                                    </div>
+                                </label>
+
+                                <label class="net-choice-card">
+                                    <input type="radio" name="accessModeRadio" value="localhost"
+                                        {{ACCESS_MODE_LOCALHOST_CHECKED}}>
+                                    <div style="flex: 1;">
+                                        <div style="font-weight: 600; font-size: 13px; color: var(--text-navy);">
+                                            Localhost Only (127.0.0.1)</div>
+                                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">
+                                            Strictly private to this machine (<code
+                                                style="font-family: 'JetBrains Mono', monospace; color: var(--text-navy); background: rgba(10,37,64,0.06); padding: 1px 5px; border-radius: 4px;">http://127.0.0.1:{{PORT}}</code>).
+                                            Cannot be reached externally.</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div
+                                style="margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <label for="netPort"
+                                        style="font-size: 12px; font-weight: 600; color: var(--text-navy);">Port:</label>
+                                    <input type="number" id="netPort" value="{{CONFIG_PORT}}" min="1024" max="65535"
+                                        style="width: 80px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border-color); font-size: 13px; font-family: 'JetBrains Mono', monospace; background: var(--card-bg); color: var(--text-navy);">
+                                </div>
+                                <button type="button" class="btn-action btn-neutral" onclick="saveNetworkMode()">Save
+                                    Network Mode</button>
+                            </div>
+                            <div id="netModeStatusMsg"
+                                style="display: none; margin-top: 10px; font-size: 12px; padding: 8px 12px; border-radius: 6px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Box 3: Connected Network Interfaces with Throughput -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div
+                                style="width: 28px; height: 28px; border-radius: 6px; background: rgba(0,240,255,0.1); display: flex; align-items: center; justify-content: center; color: #0284c7;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                                    <path
+                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
+                                    </path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 style="font-size: 15px; font-weight: 700; color: var(--text-navy); margin: 0;">
+                                    Connected Network Interfaces</h2>
+                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Active adapters &
+                                    assigned IP endpoints</p>
+                            </div>
+                        </div>
+                        <span class="box-badge" id="ifaceCountBadge"
+                            style="background: rgba(16,185,129,0.1); color: #059669; border: 1px solid rgba(16,185,129,0.25);">{{IFACE_COUNT}}
+                            Active</span>
+                    </div>
+
+                    <div class="proc-table-scroll" style="max-height: 320px;">
+                        <table class="proc-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 36%;">Network Adapter</th>
+                                    <th style="width: 34%;">IP Address</th>
+                                    <th style="width: 16%;">Type</th>
+                                    <th style="width: 14%;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ifacesTableBody">
+                                {{IFACES_ROWS}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Box 4: Advanced Hardware Health & Diagnostics -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div
+                                style="width: 28px; height: 28px; border-radius: 6px; background: rgba(99,91,255,0.1); display: flex; align-items: center; justify-content: center; color: var(--stripe-blurple);">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
+                                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 style="font-size: 15px; font-weight: 700; color: var(--text-navy); margin: 0;">
+                                    Advanced Hardware Health & Diagnostics</h2>
+                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Silicon telemetry,
+                                    clock speed, uptime & power</p>
+                            </div>
+                        </div>
+                        <span
+                            style="font-size: 11px; color: var(--success-green); font-weight: 600; background: var(--success-green-bg); padding: 3px 8px; border-radius: 99px;">Kernel
+                            Active</span>
+                    </div>
+                    <div class="tunnel-meta-list">
+                        <div class="meta-row">
+                            <span class="meta-k">Host Machine Name</span>
+                            <span class="meta-v" id="specHostname">{{HOSTNAME}}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">System Uptime</span>
+                            <span class="meta-v" id="specUptime"
+                                style="color: var(--stripe-blurple); font-weight: 700;">{{UPTIME_VAL}}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">Boot Timestamp</span>
+                            <span class="meta-v" id="specBootTime"
+                                style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">{{BOOT_TIMESTAMP}}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">CPU Hardware Model</span>
+                            <span class="meta-v" id="specCpuModel" style="font-size: 12px;">{{CPU_MODEL}}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">CPU Cores & Frequency</span>
+                            <span class="meta-v" id="specCpu">{{CPU_CORES}} Logical Cores ({{CPU_ARCH}}) <span
+                                    id="specCpuMhz"
+                                    style="color: var(--text-muted); font-size: 11px;">{{CPU_MHZ}}</span></span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">GPU Accelerator</span>
+                            <span class="meta-v" id="specGpu">{{GPU_NAME}}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">Diagnostics & Health</span>
+                            <span class="meta-v" style="color: var(--success-green); font-weight: 600;">Normal · Win32
+                                Low-Latency API</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">Operating Environment</span>
+                            <span class="meta-v" id="specOs">{{OS_NAME}}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">Primary Interface IP</span>
+                            <span class="meta-v" id="specIp">{{PRIMARY_IP}} : {{PORT}}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">Mesh Overlay</span>
+                            <span class="meta-v" id="specMesh">{{MESH_STATUS}}</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-k">Power & Battery Source</span>
+                            <span class="meta-v" id="specPower">{{POWER_SPEC}}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Box 5: Audit Trail & Activity Log -->
+                <div class="content-box">
+                    <div class="box-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div
+                                style="width: 28px; height: 28px; border-radius: 6px; background: rgba(99,91,255,0.1); display: flex; align-items: center; justify-content: center; color: var(--stripe-blurple);">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    <polyline points="10 9 9 9 8 9"></polyline>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 style="font-size: 15px; font-weight: 700; color: var(--text-navy); margin: 0;">Audit
+                                    Trail & Activity Log</h2>
+                                <p style="font-size: 12px; color: var(--text-muted); margin: 0;">Immutable security log
+                                    of admin operations</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button type="button" onclick="refreshAuditLog()" class="btn-svc-action"
+                                style="background: transparent; color: var(--stripe-blurple); border: none; font-size: 11px;">Refresh</button>
+                            <button type="button" onclick="clearAuditLog()" class="btn-svc-action"
+                                style="background: transparent; color: var(--danger-red); border: none; font-size: 11px;">Clear
+                                Log</button>
+                        </div>
+                    </div>
+                    <div class="audit-trail-scroll" id="auditTrailList">
+                        <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 12px;">
+                            Loading activity history...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer
+            style="margin-top: 32px; padding: 20px 0; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-muted); flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-weight: 600; color: var(--text-navy);">TheDoom Gateway v1.0</span>
+                <span>&bull;</span>
+                <span>Develop by YourHacker with ❤️</span>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+                Node Telemetry Uplink: <span style="color: #10b981; font-weight: 600;">ACTIVE</span>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Modal Dialog -->
+    <div class="modal-overlay" id="confirmModal" onclick="closeModalOnBackdrop(event)">
+        <div class="modal-box">
+            <h3 id="modalTitle">Confirm Action</h3>
+            <p id="modalDesc">Are you sure you wish to execute this power command?</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-cancel" onclick="closeModal()">Cancel</button>
+                <button type="button" class="btn-modal-confirm" id="btnConfirmAction" onclick="confirmAction()">Confirm
+                    Action</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CSRF = "__CSRF_TOKEN__";
+        let currentAction = null;
+        let targetPid = null;
+        let targetProcName = null;
+        let timer = null;
+        let seconds = 30;
+
+        function confirmKillProcess(pid, name) {
+            targetPid = pid;
+            targetProcName = name;
+            currentAction = 'kill_process';
+            const modal = document.getElementById('confirmModal');
+            const title = document.getElementById('modalTitle');
+            const desc = document.getElementById('modalDesc');
+            const btn = document.getElementById('btnConfirmAction');
+
+            title.innerText = "Terminate Process?";
+            desc.innerHTML = `Are you sure you want to end <strong>${escapeHtml(name)}</strong> (PID <code>${escapeHtml(pid)}</code>)? Any unsaved work in this application will be lost.`;
+            btn.className = "btn-modal-confirm btn-modal-red";
+            btn.innerText = "End Task Now";
+            modal.classList.add('active');
+        }
+
+        function openModal(action) {
+            currentAction = action;
+            targetPid = null;
+            targetProcName = null;
+            const modal = document.getElementById('confirmModal');
+            const title = document.getElementById('modalTitle');
+            const desc = document.getElementById('modalDesc');
+            const btn = document.getElementById('btnConfirmAction');
+
+            if (action === 'shutdown') {
+                title.innerText = "Confirm System Shutdown";
+                desc.innerText = "Are you sure you want to shut down this host? A 30-second abort window will be provided.";
+                btn.innerText = "Shut Down System";
+                btn.className = "btn-modal-confirm btn-modal-red";
+            } else if (action === 'restart') {
+                title.innerText = "Confirm System Restart";
+                desc.innerText = "Are you sure you want to reboot? Network access will briefly drop until the service restarts.";
+                btn.innerText = "Restart System";
+                btn.className = "btn-modal-confirm btn-modal-amber";
+            } else if (action === 'hibernate') {
+                title.innerText = "Confirm Hibernation";
+                desc.innerText = "System will save working memory to SSD and power off. Wake-on-LAN required to resume.";
+                btn.innerText = "Hibernate Host";
+                btn.className = "btn-modal-confirm btn-modal-neutral";
+            } else if (action === 'lock') {
+                title.innerText = "Confirm Desktop Lock";
+                desc.innerText = "Instantly locks the Windows user session. Remote telemetry remains active.";
+                btn.innerText = "Lock Session";
+                btn.className = "btn-modal-confirm btn-modal-neutral";
+            } else {
+                btn.innerText = "Confirm Action";
+                btn.className = "btn-modal-confirm";
+            }
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+            currentAction = null;
+            targetPid = null;
+            targetProcName = null;
+        }
+
+        function closeModalOnBackdrop(e) {
+            if (e.target.id === 'confirmModal') {
+                closeModal();
+            }
+        }
+
+        async function confirmAction() {
+            const action = currentAction;
+            const pid = targetPid;
+            const procName = targetProcName;
+
+            closeModal();
+            if (!action) return;
+
+            // Handle process termination
+            if (action === 'kill_process') {
+                if (!pid) return;
+                try {
+                    const formData = new URLSearchParams();
+                    formData.append('csrf', CSRF);
+                    formData.append('action', 'kill_process');
+                    formData.append('pid', String(pid).trim());
+                    formData.append('name', String(procName || '').trim());
+
+                    const resp = await fetch('/action', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Accept': 'application/json'
+                        },
+                        body: formData.toString()
+                    });
+
+                    const data = await resp.json();
+                    if (data.success) {
+                        const row = document.getElementById(`proc-row-${pid}`);
+                        if (row) {
+                            row.style.transition = 'all 0.3s ease';
+                            row.style.opacity = '0';
+                            row.style.transform = 'translateX(20px)';
+                            setTimeout(() => row.remove(), 300);
+                        }
+                        setTimeout(refreshTelemetry, 800);
+                    } else {
+                        alert(data.error || "Failed to terminate process.");
+                    }
+                } catch (err) {
+                    alert("Error terminating process: " + err.message);
+                }
+                return;
+            }
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('csrf', CSRF);
+                formData.append('action', action);
+
+                const resp = await fetch('/action', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    },
+                    body: formData.toString()
+                });
+
+                const data = await resp.json();
+                if (data.success) {
+                    if (action === 'shutdown' || action === 'restart') {
+                        startCountdown(action);
+                    } else {
+                        alert(data.message);
+                    }
+                } else {
+                    alert(data.error || "Action dispatch failed.");
+                }
+            } catch (err) {
+                document.getElementById('selectedAction').value = action;
+                document.getElementById('actionForm').submit();
+            }
+        }
+
+        function startCountdown(action) {
+            const banner = document.getElementById('countdownBanner');
+            const title = document.getElementById('countdownTitle');
+            title.innerText = (action === 'shutdown' ? "Shutting down in " : "Restarting in ") + "30 seconds";
+            banner.classList.add('active');
+
+            seconds = 30;
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                seconds--;
+                if (seconds > 0) {
+                    title.innerText = (action === 'shutdown' ? "Shutting down in " : "Restarting in ") + seconds + " seconds";
+                } else {
+                    clearInterval(timer);
+                    title.innerText = "Command dispatched to Windows";
+                }
+            }, 1000);
+        }
+
+        async function cancelCountdown() {
+            if (timer) clearInterval(timer);
+            document.getElementById('countdownBanner').classList.remove('active');
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('csrf', CSRF);
+                formData.append('action', 'abort');
+
+                const resp = await fetch('/action', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    },
+                    body: formData.toString()
+                });
+                const data = await resp.json();
+                alert(data.message || "Cancellation command sent.");
+            } catch (err) {
+                document.getElementById('selectedAction').value = 'abort';
+                document.getElementById('actionForm').submit();
+            }
+        }
+
+
+        // ==================== THEME CONTROLLER ====================
+        function initTheme() {
+            const savedTheme = localStorage.getItem('doom_theme') || 'light';
+            applyTheme(savedTheme);
+        }
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('doom_theme', theme);
+            const btnText = document.getElementById('themeToggleText');
+            const sunIcon = document.getElementById('themeIconSun');
+            const moonIcon = document.getElementById('themeIconMoon');
+            if (theme === 'dark') {
+                if (btnText) btnText.innerText = 'Light Mode';
+                if (sunIcon) sunIcon.style.display = 'inline-block';
+                if (moonIcon) moonIcon.style.display = 'none';
+            } else {
+                if (btnText) btnText.innerText = 'Dark Mode';
+                if (sunIcon) sunIcon.style.display = 'none';
+                if (moonIcon) moonIcon.style.display = 'inline-block';
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            const next = current === 'dark' ? 'light' : 'dark';
+            applyTheme(next);
+        }
+
+        // ==================== PROCESS & SERVICE FILTERS ====================
+        function filterProcesses() {
+            const q = (document.getElementById('procFilter')?.value || '').toLowerCase();
+            const rows = document.querySelectorAll('#procTableBody tr');
+            rows.forEach(r => {
+                const text = r.innerText.toLowerCase();
+                r.style.display = text.includes(q) ? '' : 'none';
+            });
+        }
+
+        function filterServices() {
+            const q = (document.getElementById('svcFilter')?.value || '').toLowerCase();
+            const rows = document.querySelectorAll('#svcTableBody tr');
+            rows.forEach(r => {
+                const text = r.innerText.toLowerCase();
+                r.style.display = text.includes(q) ? '' : 'none';
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ==================== WINDOWS SERVICE CONTROLLER ====================
+        async function controlService(serviceName, action) {
+            if (!confirm(`Are you sure you want to ${action.toUpperCase()} service "${serviceName}"?`)) {
+                return;
+            }
+            try {
+                const formData = new URLSearchParams();
+                formData.append('csrf', CSRF);
+                formData.append('service', serviceName);
+                formData.append('action', action);
+
+                const resp = await fetch('/service_action', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    },
+                    body: formData.toString()
+                });
+
+                const data = await resp.json();
+                if (data.success) {
+                    alert(`Service ${serviceName}: ${data.message}`);
+                    refreshTelemetry();
+                    refreshAuditLog();
+                } else {
+                    alert(`Failed to ${action} ${serviceName}: ${data.message || 'Unknown error'}`);
+                }
+            } catch (err) {
+                alert(`Error controlling service: ${err.message}`);
+            }
+        }
+
+        // ==================== BOOT AUTO-START CONTROLLER ====================
+        async function toggleBootAutoStart() {
+            const btn = document.getElementById('btnBootToggle');
+            const action = btn ? (btn.dataset.action || 'remove') : 'remove';
+            const isRemoving = (action === 'remove');
+
+            const confirmMsg = isRemoving
+                ? "Remove TheDoom Gateway from automatic Windows boot startup? (The Windows Scheduled Task 'TheDoom_Gateway' will be deleted)"
+                : "Register TheDoom Gateway to start automatically upon Windows boot under NT AUTHORITY\\SYSTEM without requiring login?";
+
+            if (!confirm(confirmMsg)) return;
+
+            btn.disabled = true;
+            btn.innerText = isRemoving ? "Removing..." : "Enabling...";
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('csrf', CSRF);
+                formData.append('action', isRemoving ? 'remove' : 'enable');
+
+                const resp = await fetch('/api/boot_config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    },
+                    body: formData.toString()
+                });
+
+                const data = await resp.json();
+                btn.disabled = false;
+                if (data.success) {
+                    const badge = document.getElementById('bootStatusBadge');
+                    if (data.boot_task_active) {
+                        if (badge) {
+                            badge.innerText = "Active (System Boot)";
+                            badge.className = "tag-svc-running";
+                        }
+                        btn.dataset.action = "remove";
+                        btn.innerText = "Remove Auto-Start at Boot";
+                        btn.className = "btn-action btn-action-danger";
+                    } else {
+                        if (badge) {
+                            badge.innerText = "Disabled / Manual";
+                            badge.className = "tag-svc-stopped";
+                        }
+                        btn.dataset.action = "enable";
+                        btn.innerText = "Enable Auto-Start at Boot";
+                        btn.className = "btn-action btn-action-primary";
+                    }
+                    alert(data.message);
+                    refreshAuditLog();
+                } else {
+                    alert(`Boot config failed: ${data.message}`);
+                    btn.innerText = isRemoving ? "Remove Auto-Start at Boot" : "Enable Auto-Start at Boot";
+                }
+            } catch (err) {
+                btn.disabled = false;
+                alert(`Error: ${err.message}`);
+                btn.innerText = isRemoving ? "Remove Auto-Start at Boot" : "Enable Auto-Start at Boot";
+            }
+        }
+
+        // ==================== NETWORK MODE CONTROLLER ====================
+        async function saveNetworkMode() {
+            const selected = document.querySelector('input[name="accessModeRadio"]:checked');
+            const mode = selected ? selected.value : 'lan';
+            const port = document.getElementById('netPort')?.value || '6969';
+            const msgEl = document.getElementById('netModeStatusMsg');
+
+            try {
+                const formData = new URLSearchParams();
+                formData.append('csrf', CSRF);
+                formData.append('access_mode', mode);
+                formData.append('port', port);
+
+                const resp = await fetch('/api/network_mode', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    },
+                    body: formData.toString()
+                });
+
+                const data = await resp.json();
+                if (data.success) {
+                    if (msgEl) {
+                        msgEl.style.display = 'block';
+                        msgEl.style.background = 'var(--success-green-bg)';
+                        msgEl.style.color = 'var(--success-green)';
+                        msgEl.style.border = '1px solid rgba(16,185,129,0.3)';
+                        msgEl.innerText = data.message;
+                    }
+                    refreshAuditLog();
+                } else {
+                    alert(data.message || 'Failed to update access mode.');
+                }
+            } catch (err) {
+                alert(`Error updating network mode: ${err.message}`);
+            }
+        }
+
+        // ==================== AUDIT TRAIL LOG ====================
+        async function refreshAuditLog() {
+            const container = document.getElementById('auditTrailList');
+            if (!container) return;
+            try {
+                const resp = await fetch('/api/audit');
+                const data = await resp.json();
+                if (data.success && data.entries) {
+                    if (data.entries.length === 0) {
+                        container.innerHTML = '<div style="padding: 18px; text-align: center; color: var(--text-muted); font-size: 12px;">No activity logged yet.</div>';
+                        return;
+                    }
+                    container.innerHTML = data.entries.map(entry => {
+                        const cat = (entry.category || 'LOG').toUpperCase();
+                        let tagClass = 'tag-audit-auth';
+                        if (cat === 'POWER') tagClass = 'tag-audit-power';
+                        else if (cat === 'PROCESS') tagClass = 'tag-audit-proc';
+                        else if (cat === 'SERVICE') tagClass = 'tag-audit-service';
+                        else if (cat === 'CONFIG') tagClass = 'tag-audit-config';
+
+                        const isSuccess = entry.result === 'SUCCESS';
+                        const resColor = isSuccess ? 'var(--success-green)' : 'var(--danger-red)';
+                        const timeStr = entry.timestamp ? (entry.timestamp.split('T')[1]?.split('.')[0] || entry.timestamp) : '';
+
+                        return `<div class="audit-item">
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                <span class="tag-audit ${tagClass}">${escapeHtml(cat)}</span>
+                                <div style="min-width: 0;">
+                                    <div style="font-weight: 600; color: var(--text-navy); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        ${escapeHtml(entry.action)} <span style="font-weight: 400; color: var(--text-muted);">by ${escapeHtml(entry.user || 'Admin')}</span>
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        ${escapeHtml(entry.details || '')} · IP: ${escapeHtml(entry.ip || '')}
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="text-align: right; flex-shrink: 0;">
+                                <span style="font-size: 11px; font-weight: 700; color: ${resColor};">${escapeHtml(entry.result || '')}</span>
+                                <div style="font-size: 10px; color: var(--text-light); font-family: 'JetBrains Mono', monospace;">${escapeHtml(timeStr)}</div>
+                            </div>
+                        </div>`;
+                    }).join('');
+                }
+            } catch (e) { }
+        }
+
+        async function clearAuditLog() {
+            if (!confirm("Clear the entire administrative audit log trail?")) return;
+            try {
+                const formData = new URLSearchParams();
+                formData.append('csrf', CSRF);
+                const resp = await fetch('/api/audit/clear', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/json'
+                    },
+                    body: formData.toString()
+                });
+                const data = await resp.json();
+                if (data.success) {
+                    refreshAuditLog();
+                } else {
+                    alert("Failed to clear log.");
+                }
+            } catch (err) {
+                alert(`Error: ${err.message}`);
+            }
+        }
+
+        // ==================== REAL-TIME TELEMETRY ENGINE ====================
+        async function refreshTelemetry() {
+            const btn = document.querySelector('.btn-nav-action');
+            if (btn) btn.style.opacity = '0.5';
+            try {
+                const res = await fetch('/api/status');
+                const data = await res.json();
+
+                if (data.cpu_percent !== undefined) {
+                    document.getElementById('cpuVal').innerText = `${data.cpu_percent}% Load`;
+                    document.getElementById('cpuBar').style.width = `${data.cpu_percent}%`;
+                    document.getElementById('cpuSub').innerText = `${data.cpu_cores} Cores Active · Kernel Low-Latency`;
+                }
+                if (data.ram_total_gb) {
+                    document.getElementById('ramVal').innerText = `${data.ram_used_gb} / ${data.ram_total_gb} GB`;
+                    document.getElementById('ramBar').style.width = `${data.ram_percent}%`;
+                    document.getElementById('ramSub').innerText = `${data.ram_percent}% load · ${data.ram_avail_gb} GB available`;
+                }
+                if (data.net_rx_speed) {
+                    document.getElementById('netSpeedVal').innerHTML = `<span style="color: #10b981;">↓ ${data.net_rx_speed}</span>  <span style="color: #0284c7;">↑ ${data.net_tx_speed}</span>`;
+                    document.getElementById('netTotalSub').innerText = `Total: ${data.net_total_rx} In · ${data.net_total_tx} Out`;
+                }
+                if (data.primary_disk_free) {
+                    document.getElementById('diskVal').innerText = `${data.primary_disk_free} Free`;
+                    document.getElementById('diskBar').style.width = `${data.primary_disk_percent}%`;
+                    document.getElementById('diskSub').innerText = `${data.primary_disk_percent}% used of ${data.primary_disk_total} total`;
+                }
+
+                if (data.hostname) {
+                    const el = document.getElementById('navHostname');
+                    if (el) el.innerText = data.hostname;
+                    const sp = document.getElementById('specHostname');
+                    if (sp) sp.innerText = data.hostname;
+                }
+                if (data.gpu && data.gpu.name) {
+                    const gVal = document.getElementById('gpuVal');
+                    if (gVal) { gVal.innerText = data.gpu.name; gVal.title = data.gpu.name; }
+                    const gSub = document.getElementById('gpuSub');
+                    if (gSub) gSub.innerText = (data.gpu.status || 'Active') + ' · ' + (data.gpu.load || 'Active');
+                    const gSpec = document.getElementById('specGpu');
+                    if (gSpec) gSpec.innerText = data.gpu.name;
+                }
+
+                // Hardware specs & Uptime updates
+                if (data.uptime) {
+                    const upEl = document.getElementById('specUptime');
+                    if (upEl) upEl.innerText = data.uptime;
+                }
+                if (data.boot_time) {
+                    const bootEl = document.getElementById('specBootTime');
+                    if (bootEl) bootEl.innerText = data.boot_time;
+                }
+                if (data.hardware) {
+                    if (data.hardware.model) {
+                        const mEl = document.getElementById('specCpuModel');
+                        if (mEl) mEl.innerText = data.hardware.model;
+                    }
+                    if (data.hardware.mhz) {
+                        const mhzEl = document.getElementById('specCpuMhz');
+                        if (mhzEl) mhzEl.innerText = data.hardware.mhz;
+                    }
+                }
+
+                if (data.process_count) {
+                    document.getElementById('procCount').innerText = `${data.process_count} Total Tasks`;
+                }
+                if (data.top_processes && data.top_processes.length > 0) {
+                    const tbody = document.getElementById('procTableBody');
+                    if (tbody) {
+                        tbody.innerHTML = data.top_processes.map(p => `
+                        <tr id="proc-row-${escapeHtml(p.pid)}">
+                            <td>
+                                <div class="proc-name-cell">
+                                    <span class="proc-dot" style="background: ${p.color};"></span>
+                                    <span style="font-weight: 600;">${escapeHtml(p.name)}</span>
+                                </div>
+                            </td>
+                            <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted);">${escapeHtml(p.pid)}</span></td>
+                            <td class="proc-mem-cell">${escapeHtml(p.memory)}</td>
+                            <td><span class="tag-active">Active</span></td>
+                            <td style="text-align: right;">
+                                <button type="button" class="btn-kill-proc" onclick="confirmKillProcess('${escapeHtml(p.pid)}', '${escapeHtml(p.name)}')" title="Terminate process ${escapeHtml(p.name)}">
+                                    End Task
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                        filterProcesses();
+                    }
+                }
+
+                // Real-time Services update
+                if (data.services && data.services.length > 0) {
+                    const sBody = document.getElementById('svcTableBody');
+                    if (sBody) {
+                        const runningCount = data.services.filter(s => s.status === 'RUNNING').length;
+                        const sBadge = document.getElementById('svcCountBadge');
+                        if (sBadge) sBadge.innerText = `${runningCount} / ${data.services.length} Active`;
+
+                        sBody.innerHTML = data.services.map(s => {
+                            const name = escapeHtml(s.name);
+                            const display = escapeHtml(s.display || s.name);
+                            const desc = escapeHtml(s.desc || '');
+                            const isRunning = (s.status === 'RUNNING');
+                            const badgeClass = isRunning ? 'tag-svc-running' : 'tag-svc-stopped';
+                            const dotColor = isRunning ? '#10b981' : '#94a3b8';
+
+                            let btns = `<button type="button" class="btn-svc-action btn-svc-restart" onclick="controlService('${name}', 'restart')" title="Restart ${display}">Restart</button>`;
+                            if (isRunning) {
+                                btns += `<button type="button" class="btn-svc-action btn-svc-stop" onclick="controlService('${name}', 'stop')" title="Stop ${display}">Stop</button>`;
+                            } else {
+                                btns += `<button type="button" class="btn-svc-action btn-svc-start" onclick="controlService('${name}', 'start')" title="Start ${display}">Start</button>`;
+                            }
+
+                            return `<tr id="svc-row-${name}">
+                                <td>
+                                    <div class="proc-name-cell">
+                                        <span class="proc-dot" style="background: ${dotColor};"></span>
+                                        <div>
+                                            <div style="font-weight: 600; color: var(--text-navy); font-size: 13px;">${display}</div>
+                                            <div style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">${name} · ${desc}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="${badgeClass}">${escapeHtml(s.status)}</span></td>
+                                <td style="text-align: right; white-space: nowrap;">
+                                    ${btns}
+                                </td>
+                            </tr>`;
+                        }).join('');
+                        filterServices();
+                    }
+                }
+
+                // Real-time Power & Battery Source update
+                if (data.battery) {
+                    const bVal = document.getElementById('powerVal');
+                    if (bVal) bVal.innerText = data.battery.val || 'Mains Power';
+                    const bBar = document.getElementById('powerBar');
+                    if (bBar) {
+                        bBar.style.width = `${data.battery.percent || 100}%`;
+                        bBar.style.background = data.battery.color || '#10b981';
+                    }
+                    const bSub = document.getElementById('powerSub');
+                    if (bSub) bSub.innerText = data.battery.sub || 'AC Line Active';
+                    const bSpec = document.getElementById('specPower');
+                    if (bSpec) bSpec.innerText = `${data.battery.val || 'AC Power'} · ${data.battery.status || 'Connected'}`;
+                }
+
+                // Real-time Connected Network Interfaces update
+                if (data.interfaces && data.interfaces.length > 0) {
+                    const ifacesBody = document.getElementById('ifacesTableBody');
+                    if (ifacesBody) {
+                        ifacesBody.innerHTML = data.interfaces.map(iface => {
+                            const name = iface.name || 'Interface';
+                            const desc = iface.desc || '';
+                            const ip = iface.ip || '';
+                            const itype = iface.type || 'Ethernet';
+                            const status = iface.status || 'Connected';
+                            const dotColor = (itype.toLowerCase().includes('mesh') || name.toLowerCase().includes('tailscale')) ? '#00ff66' : (itype.toLowerCase().includes('wi-fi') ? '#635bff' : '#8898aa');
+                            return `<tr>
+                            <td>
+                                <div class="proc-name-cell">
+                                    <span class="proc-dot" style="background: ${dotColor};"></span>
+                                    <div>
+                                        <div style="font-weight: 600; color: var(--text-navy); font-size: 13px;">${escapeHtml(name)}</div>
+                                        <div style="font-size: 11px; color: var(--text-muted);">${escapeHtml(desc)}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span class="ip-pill">${escapeHtml(ip)}</span>
+                                    <button type="button" class="btn-copy-ip" onclick="navigator.clipboard.writeText('${escapeHtml(ip)}'); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 1500);">Copy</button>
+                                </div>
+                            </td>
+                            <td>
+                                <span style="font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; background: rgba(99,91,255,0.08); color: var(--stripe-blurple); border: 1px solid rgba(99,91,255,0.2);">${escapeHtml(itype)}</span>
+                            </td>
+                            <td>
+                                <span class="tag-active" style="display: inline-flex; align-items: center; gap: 4px;">
+                                    <span style="width: 6px; height: 6px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+                                    <span>${escapeHtml(status)}</span>
+                                </span>
+                            </td>
+                        </tr>`;
+                        }).join('');
+                    }
+                    const ifaceBadge = document.getElementById('ifaceCountBadge');
+                    if (ifaceBadge) ifaceBadge.innerText = `${data.interfaces.length} Active`;
+                    const navIface = document.getElementById('navIfaceCount');
+                    if (navIface) navIface.innerText = `${data.interfaces.length} Active Interfaces`;
+                }
+
+                // Real-time Storage Volumes update
+                if (data.disks && data.disks.length > 0) {
+                    const dContainer = document.getElementById('disksContainer');
+                    if (dContainer) {
+                        dContainer.innerHTML = data.disks.map(d => {
+                            const mount = d.path || d.mount || d.label || d.drive;
+                            const pct = d.percent || 0;
+                            const barColor = pct > 90 ? '#df1b41' : (pct > 75 ? '#f59e0b' : '#10b981');
+                            return `<div style="background: #ffffff; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                            <div style="display: flex; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div style="width: 24px; height: 24px; border-radius: 6px; background: rgba(10,37,64,0.05); display: flex; align-items: center; justify-content: center; color: var(--text-navy);">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 700; font-size: 13px; color: var(--text-navy);">${escapeHtml(d.drive)}</div>
+                                        <div style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">Mount: ${escapeHtml(mount)}</div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 13px; font-weight: 700; color: var(--text-navy);">${escapeHtml(d.free)} Free</div>
+                                    <div style="font-size: 11px; color: var(--text-muted);">${escapeHtml(d.used)} used of ${escapeHtml(d.total)}</div>
+                                </div>
+                            </div>
+                            <div class="progress-bar-thin" style="height: 6px; background: #e6ebf1; border-radius: 3px; overflow: hidden;">
+                                <div class="bar-fill fill-emerald" style="width: ${pct}%; height: 100%; border-radius: 3px; background: ${barColor};"></div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-light);">
+                                <span>Volume Load: ${pct}%</span>
+                                <span>Total: ${escapeHtml(d.total)}</span>
+                            </div>
+                        </div>`;
+                        }).join('');
+                    }
+                    const dBadge = document.getElementById('diskCountBadge');
+                    if (dBadge) dBadge.innerText = `${data.disks.length} Volumes`;
+                }
+
+                // Real-time Host Node Specifications update
+                if (data.primary_ip) {
+                    const spIp = document.getElementById('specIp');
+                    if (spIp) spIp.innerText = `${data.primary_ip} : ${data.port || 6969}`;
+                }
+                if (data.mesh_status) {
+                    const spMesh = document.getElementById('specMesh');
+                    if (spMesh) spMesh.innerText = data.mesh_status;
+                }
+            } catch (e) { }
+            if (btn) btn.style.opacity = '1';
+        }
+
+        window.addEventListener("DOMContentLoaded", () => {
+            initTheme();
+            refreshTelemetry();
+            refreshAuditLog();
+        });
+        setInterval(refreshTelemetry, 15000);
+        setInterval(refreshAuditLog, 20000);
+    </script>
+
+</body>
+
+</html>

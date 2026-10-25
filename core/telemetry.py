@@ -51,9 +51,237 @@ def get_system_uptime():
         if hours > 0 or days > 0:
             parts.append(f"{hours}h")
         parts.append(f"{minutes}m")
-        return " ".join(parts) if parts else "< 1m"
+        uptime_str = " ".join(parts) if parts else "< 1m"
+        
+        boot_epoch = time.time() - uptime_sec
+        boot_str = time.strftime("%b %d, %Y · %I:%M %p", time.localtime(boot_epoch))
+        return {
+            "uptime_str": uptime_str,
+            "boot_str": boot_str,
+            "uptime_sec": int(uptime_sec),
+            "days": int(days),
+            "hours": int(hours),
+            "minutes": int(minutes)
+        }
     except Exception:
-        return "Online"
+        return {
+            "uptime_str": "Online",
+            "boot_str": "System Boot Active",
+            "uptime_sec": 0,
+            "days": 0,
+            "hours": 0,
+            "minutes": 0
+        }
+
+# ==================== HARDWARE DIAGNOSTICS ====================
+
+def get_cpu_hardware_info():
+    """Retrieve detailed CPU processor model, clock, and architecture."""
+    cpu_info = {
+        "model": platform.processor() or "Multi-Core x86_64 Processor",
+        "cores": os.cpu_count() or 4,
+        "arch": platform.machine() or "x86_64",
+        "mhz": ""
+    }
+    if platform.system() == "Windows":
+        try:
+            import winreg
+            key = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                r"HARDWARE\DESCRIPTION\System\CentralProcessor\0"
+            )
+            name, _ = winreg.QueryValueEx(key, "ProcessorNameString")
+            if name:
+                cpu_info["model"] = name.strip()
+            try:
+                mhz, _ = winreg.QueryValueEx(key, "~MHz")
+                if mhz:
+                    cpu_info["mhz"] = f"{mhz} MHz"
+            except Exception:
+                pass
+            winreg.CloseKey(key)
+        except Exception:
+            pass
+    return cpu_info
+
+# ==================== WINDOWS SERVICES WATCHDOG ====================
+
+KEY_WINDOWS_SERVICES = [
+    {"name": "Tailscale", "display": "Tailscale VPN Mesh Engine", "desc": "WireGuard peer mesh network"},
+    {"name": "com.docker.service", "display": "Docker Desktop Engine", "desc": "Container virtualization runtime"},
+    {"name": "wslservice", "display": "Windows Subsystem for Linux (WSL)", "desc": "Linux kernel translation service"},
+    {"name": "Spooler", "display": "Print Spooler Service", "desc": "Spools print jobs and printer communication"},
+    {"name": "wuauserv", "display": "Windows Update Agent", "desc": "Detects and downloads Windows patches"},
+    {"name": "LanmanServer", "display": "SMB Server (File Sharing)", "desc": "Network file and named-pipe sharing"},
+    {"name": "bthserv", "display": "Bluetooth Audio & Device Engine", "desc": "Discovers and manages Bluetooth devices"},
+    {"name": "AudioSrv", "display": "Windows Audio Core", "desc": "Manages host audio playback stream"},
+    {"name": "WSearch", "display": "Windows Search Indexer", "desc": "Content indexing for instant file lookup"},
+    {"name": "sshd", "display": "OpenSSH Server Daemon", "desc": "Secure Shell remote terminal access"},
+    {"name": "TermService", "display": "Remote Desktop Services (RDP)", "desc": "Remote multi-session desktop protocol"},
+]
+
+def get_windows_services():
+    """Queries key Windows services with live operational status."""
+    services_data = []
+    if platform.system() != "Windows":
+        return services_data
+
+    status_map = {}
+    try:
+        res = subprocess.run(
+            ['sc.exe', 'query', 'type=', 'service', 'state=', 'all'],
+            capture_output=True,
+            text=True,
+            timeout=3,
+            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+        )
+        if res.returncode == 0:
+            current_svc = None
+            for line in res.stdout.splitlines():
+                line = line.strip()
+                if line.upper().startswith("SERVICE_NAME:"):
+                    current_svc = line.split(":", 1)[1].strip().lower()
+                elif line.upper().startswith("STATE") and current_svc:
+                    parts = line.split(":", 1)[1].strip().split()
+                    st = parts[1] if len(parts) > 1 else parts[0]
+                    status_map[current_svc] = st.upper()
+                    current_svc = None
+    except Exception:
+        pass
+
+    for ks in KEY_WINDOWS_SERVICES:
+        s_name = ks["name"]
+        st = status_map.get(s_name.lower())
+        if not st:
+            try:
+                q_res = subprocess.run(
+                    ['sc.exe', 'query', s_name],
+                    capture_output=True, text=True, timeout=2,
+                    creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+                )
+                if q_res.returncode == 0:
+                    for l in q_res.stdout.splitlines():
+                        if "STATE" in l.upper():
+                            p = l.split(":", 1)[1].strip().split()
+                            st = p[1].upper() if len(p) > 1 else p[0].upper()
+                            break
+            except Exception:
+                pass
+
+        # If service is not installed on this machine, DO NOT show it
+        if not st:
+            continue
+
+        services_data.append({
+            "name": s_name,
+            "display": ks["display"],
+            "desc": ks["desc"],
+            "status": st
+        })
+    return services_data
+
+# ==================== BATTERY & POWER TELEMETRY ====================
+
+class SYSTEM_POWER_STATUS(ctypes.Structure):
+    _fields_ = [
+        ("ACLineStatus", ctypes.c_byte),
+        ("BatteryFlag", ctypes.c_byte),
+        ("BatteryLifePercent", ctypes.c_byte),
+        ("SystemStatusFlag", ctypes.c_byte),
+        ("BatteryLifeTime", ctypes.c_ulong),
+        ("BatteryFullLifeTime", ctypes.c_ulong),
+    ]
+
+def get_battery_telemetry():
+    """Retrieve Windows laptop battery or UPS power status via GetSystemPowerStatus."""
+    if platform.system() != "Windows":
+        return {
+            "has_battery": False,
+            "status": "AC Power",
+            "percent": 100,
+            "val": "Mains Power",
+            "sub": "AC Line Active · Direct Feed",
+            "color": "#10b981"
+        }
+
+    try:
+        sps = SYSTEM_POWER_STATUS()
+        if not ctypes.windll.kernel32.GetSystemPowerStatus(ctypes.byref(sps)):
+            return {
+                "has_battery": False,
+                "status": "AC Power",
+                "percent": 100,
+                "val": "Mains Power",
+                "sub": "AC Line Active",
+                "color": "#10b981"
+            }
+
+        no_battery = (sps.BatteryFlag & 128) != 0 or sps.BatteryLifePercent == 255
+        ac_online = sps.ACLineStatus == 1
+
+        if no_battery:
+            return {
+                "has_battery": False,
+                "ac_online": ac_online,
+                "is_charging": False,
+                "percent": 100,
+                "val": "Desktop AC",
+                "status": "AC Mains Online",
+                "sub": "Mains Line Power Active · Direct Feed",
+                "color": "#10b981"
+            }
+
+        percent = int(sps.BatteryLifePercent)
+        is_charging = (sps.BatteryFlag & 8) != 0
+
+        if is_charging:
+            color = "#10b981"
+            val = f"{percent}% Charging"
+            status = "Charging (AC)"
+            sub = "AC Connected · Battery Accumulating"
+        elif ac_online:
+            color = "#10b981"
+            val = f"{percent}% (On AC)"
+            status = "Plugged In"
+            sub = "AC Connected · Battery Full / Idle"
+        else:
+            if percent <= 15:
+                color = "#df1b41"
+            elif percent <= 30:
+                color = "#f59e0b"
+            else:
+                color = "#0284c7"
+            val = f"{percent}% Battery"
+            status = "On Battery"
+            sub = "Discharging · Running on Battery"
+
+        if not ac_online and sps.BatteryLifeTime != 0xFFFFFFFF and sps.BatteryLifeTime > 0:
+            hrs = sps.BatteryLifeTime // 3600
+            mins = (sps.BatteryLifeTime % 3600) // 60
+            if hrs > 0:
+                sub = f"Discharging · ~{hrs}h {mins}m left"
+            else:
+                sub = f"Discharging · ~{mins}m left"
+
+        return {
+            "has_battery": True,
+            "ac_online": ac_online,
+            "is_charging": is_charging,
+            "percent": percent,
+            "val": val,
+            "status": status,
+            "sub": sub,
+            "color": color
+        }
+    except Exception:
+        return {
+            "has_battery": False,
+            "status": "AC Power",
+            "percent": 100,
+            "val": "Mains Power",
+            "sub": "AC Line Active",
+            "color": "#10b981"
+        }
 
 # ==================== ALL DISKS & STORAGE ====================
 
@@ -231,6 +459,97 @@ def get_network_interfaces(tailscale_ip=None):
 
     return unique_interfaces
 
+def get_system_ips():
+    """
+    Dynamically identifies the host system's real IP addresses:
+    - lan: Real primary active IPv4 on the local network (e.g. 192.168.1.100, 10.x.x.x)
+    - tailscale: Real active Tailscale IPv4 (100.x.x.x) if installed and running
+    - localhost: 127.0.0.1
+    - has_tailscale: bool
+    Zero hardcoded IP addresses.
+    """
+    lan_ip = ""
+    tailscale_ip = ""
+
+    ifaces = get_network_interfaces()
+    for iface in ifaces:
+        ip = iface.get("ip", "")
+        itype = iface.get("type", "")
+        iname = (iface.get("name", "") + " " + iface.get("desc", "")).lower()
+
+        # Tailscale check (RFC 6598 CGNAT range 100.64.0.0/10 or adapter name)
+        if "tailscale" in iname or itype == "Mesh VPN" or (ip.startswith("100.") and ip.count(".") == 3):
+            try:
+                second_octet = int(ip.split(".")[1])
+                if 64 <= second_octet <= 127:
+                    if not tailscale_ip and not ip.startswith("127."):
+                        tailscale_ip = ip
+            except (ValueError, IndexError):
+                if not tailscale_ip and not ip.startswith("127."):
+                    tailscale_ip = ip
+
+        # LAN check: active physical Ethernet or Wi-Fi (exclude loopback, APIPA, Tailscale, virtual switches if physical present)
+        elif itype in ("Ethernet", "Wi-Fi", "LAN") and not ip.startswith("169.254.") and not ip.startswith("127.") and not ip.startswith("100."):
+            # Prefer non-virtual adapters for primary LAN IP
+            is_virtual = any(v in iname for v in ("vmware", "vbox", "vethernet", "virtual", "default switch"))
+            if not lan_ip or (is_virtual is False and any(v in lan_ip for v in ("vmware", "172.29."))):
+                lan_ip = ip
+
+    # If Tailscale CLI is available on PATH, check for real IP
+    if not tailscale_ip:
+        try:
+            ts_res = subprocess.run(
+                ["tailscale.exe", "ip", "-4"],
+                capture_output=True,
+                text=True,
+                timeout=2,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)
+            )
+            if ts_res.returncode == 0 and ts_res.stdout.strip():
+                candidate = ts_res.stdout.strip().splitlines()[0].strip()
+                if candidate and not candidate.startswith("127."):
+                    tailscale_ip = candidate
+        except Exception:
+            pass
+
+    # If LAN IP not identified yet, detect outbound routing socket without sending packets
+    if not lan_ip:
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(("8.8.8.8", 80))
+            sock_ip = s.getsockname()[0]
+            s.close()
+            if sock_ip and not sock_ip.startswith("127.") and not sock_ip.startswith("169.254."):
+                if sock_ip.startswith("100."):
+                    if not tailscale_ip:
+                        tailscale_ip = sock_ip
+                else:
+                    lan_ip = sock_ip
+        except Exception:
+            pass
+
+    # Fallback to general socket host IP resolution
+    if not lan_ip:
+        try:
+            hostname = socket.gethostname()
+            for ip in socket.gethostbyname_ex(hostname)[2]:
+                if not ip.startswith("127.") and not ip.startswith("169.254."):
+                    if ip.startswith("100."):
+                        if not tailscale_ip:
+                            tailscale_ip = ip
+                    else:
+                        lan_ip = ip
+                        break
+        except Exception:
+            pass
+
+    return {
+        "localhost": "127.0.0.1",
+        "lan": lan_ip or "127.0.0.1",
+        "tailscale": tailscale_ip or "",
+        "has_tailscale": bool(tailscale_ip)
+    }
+
 # ==================== GPU ACCELERATION ====================
 
 def get_gpu_telemetry():
@@ -405,21 +724,32 @@ def get_network_throughput():
         "tx_bytes": tx_bytes
     }
 
-# ==================== FULL TELEMETRY AGGREGATOR ====================
-
-def get_system_telemetry(tailscale_ip="100.64.0.2", port=6969):
-    """Gathers real-time host telemetry: CPU, GPU, RAM, Throughput, Disks, and Network."""
+def get_system_telemetry(tailscale_ip=None, port=6969, access_mode="lan"):
+    """Gathers real-time host telemetry: CPU, GPU, RAM, Throughput, Disks, and Network without hardcoded values."""
     node = platform.node() or "TheDoom"
     os_name = f"{platform.system()} {platform.release()}"
     cpu_cores = os.cpu_count() or 4
     cpu_percent = get_cpu_utilization()
     throughput = get_network_throughput()
 
+    uptime_data = get_system_uptime()
+    uptime_val = uptime_data.get("uptime_str", "Online") if isinstance(uptime_data, dict) else str(uptime_data)
+    boot_str = uptime_data.get("boot_str", "System Boot Active") if isinstance(uptime_data, dict) else "System Boot Active"
+
+    # Dynamically detect host system's real IP addresses
+    sys_ips = get_system_ips()
+    actual_ts_ip = tailscale_ip if tailscale_ip else sys_ips.get("tailscale", "")
+    actual_lan_ip = sys_ips.get("lan", "127.0.0.1")
+
     telemetry = {
         "hostname": node,
         "os": os_name,
-        "uptime": get_system_uptime(),
-        "tailscale_ip": tailscale_ip,
+        "uptime": uptime_val,
+        "boot_time": boot_str,
+        "access_mode": access_mode,
+        "tailscale_ip": actual_ts_ip,
+        "lan_ip": actual_lan_ip,
+        "has_tailscale": bool(actual_ts_ip),
         "port": port,
         "cpu_percent": cpu_percent,
         "cpu_cores": cpu_cores,
@@ -435,7 +765,7 @@ def get_system_telemetry(tailscale_ip="100.64.0.2", port=6969):
         "primary_disk_percent": 0,
         "disks": [],
         "interfaces": [],
-        "primary_ip": tailscale_ip,
+        "primary_ip": actual_lan_ip,
         "net_rx_speed": throughput["rx_speed"],
         "net_tx_speed": throughput["tx_speed"],
         "net_total_rx": throughput["total_rx"],
@@ -492,29 +822,20 @@ def get_system_telemetry(tailscale_ip="100.64.0.2", port=6969):
         telemetry["primary_disk_percent"] = all_disks[0]["percent"]
 
     # 3. Network Interfaces with IP
-    all_ifaces = get_network_interfaces(tailscale_ip)
+    all_ifaces = get_network_interfaces(actual_ts_ip)
     telemetry["interfaces"] = all_ifaces
-    primary_ip = ""
-    for iface in all_ifaces:
-        if tailscale_ip and iface["ip"] == tailscale_ip:
-            primary_ip = iface["ip"]
-            break
-    if not primary_ip:
-        for iface in all_ifaces:
-            if iface["type"] in ("Ethernet", "Wi-Fi") and not iface["ip"].startswith("169.254"):
-                primary_ip = iface["ip"]
-                break
-    if not primary_ip and all_ifaces:
-        for iface in all_ifaces:
-            if not iface["ip"].startswith("169.254"):
-                primary_ip = iface["ip"]
-                break
-        if not primary_ip:
-            primary_ip = all_ifaces[0]["ip"]
-    telemetry["primary_ip"] = primary_ip or tailscale_ip or "127.0.0.1"
 
-    has_mesh = any(i.get("type") == "Mesh VPN" or "tailscale" in (i.get("name", "") + " " + i.get("desc", "")).lower() for i in all_ifaces)
-    telemetry["mesh_status"] = "Tailscale WireGuard (Active)" if has_mesh else "Direct Network (No Mesh)"
+    if access_mode == "localhost":
+        primary_ip = "127.0.0.1"
+    elif access_mode == "tailscale" and actual_ts_ip:
+        primary_ip = actual_ts_ip
+    else:  # "lan" (Default: Local Network)
+        primary_ip = actual_lan_ip
+
+    telemetry["primary_ip"] = primary_ip or actual_lan_ip or "127.0.0.1"
+
+    has_mesh = bool(actual_ts_ip) or any(i.get("type") == "Mesh VPN" or "tailscale" in (i.get("name", "") + " " + i.get("desc", "")).lower() for i in all_ifaces)
+    telemetry["mesh_status"] = f"Tailscale Active ({actual_ts_ip})" if actual_ts_ip else ("Tailscale WireGuard" if has_mesh else "Local Network Direct")
 
     # 4. GPU Telemetry
     telemetry["gpu"] = get_gpu_telemetry()
@@ -544,7 +865,7 @@ def get_system_telemetry(tailscale_ip="100.64.0.2", port=6969):
                     if pname not in apps or mem_kb > apps[pname]["mem_kb"]:
                         apps[pname] = {"pid": pid, "mem_kb": mem_kb}
 
-            sorted_apps = sorted(apps.items(), key=lambda x: x[1]["mem_kb"], reverse=True)[:8]
+            sorted_apps = sorted(apps.items(), key=lambda x: x[1]["mem_kb"], reverse=True)[:50]
             colors = ["#3b82f6", "#0284c7", "#6366f1", "#10b981", "#f59e0b", "#64748b", "#ec4899", "#8b5cf6"]
             formatted = []
             for idx, (name, data) in enumerate(sorted_apps):
@@ -562,6 +883,15 @@ def get_system_telemetry(tailscale_ip="100.64.0.2", port=6969):
             telemetry["top_processes"] = formatted
     except Exception:
         pass
+
+    # 6. Battery & Power Status
+    telemetry["battery"] = get_battery_telemetry()
+
+    # 7. Windows Services Watchdog
+    telemetry["services"] = get_windows_services()
+
+    # 8. Hardware Diagnostics
+    telemetry["hardware"] = get_cpu_hardware_info()
 
     return telemetry
  
@@ -630,8 +960,8 @@ def render_interfaces_html(interfaces):
             </td>
             <td>
                 <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="font-family: \'JetBrains Mono\', monospace; font-size: 12px; font-weight: 600; color: var(--text-navy); background: #f0f4f8; padding: 2px 7px; border-radius: 4px; border: 1px solid var(--border-color);">{ip}</span>
-                    <button type="button" onclick="navigator.clipboard.writeText(\'{ip}\'); this.innerText=\'Copied!\'; setTimeout(()=>this.innerText=\'Copy\', 1500);" style="border: 1px solid var(--border-color); background: #ffffff; cursor: pointer; color: var(--text-muted); font-size: 10px; padding: 2px 5px; border-radius: 4px;">Copy</button>
+                    <span class="ip-pill">{ip}</span>
+                    <button type="button" class="btn-copy-ip" onclick="navigator.clipboard.writeText('{ip}'); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 1500);">Copy</button>
                 </div>
             </td>
             <td>
@@ -647,36 +977,85 @@ def render_interfaces_html(interfaces):
         rows.append(row)
     return '\n'.join(rows)
 
+def render_services_html(services):
+    """Renders HTML rows for the Windows Services Manager."""
+    if not services:
+        return '<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 18px;">No service watchdog telemetry available</td></tr>'
+    rows = []
+    for s in services:
+        name = html.escape(str(s.get('name', '')))
+        display = html.escape(str(s.get('display', name)))
+        desc = html.escape(str(s.get('desc', '')))
+        status = str(s.get('status', 'STOPPED')).upper()
+        
+        is_running = (status == 'RUNNING')
+        dot_color = '#10b981' if is_running else '#64748b'
+        badge_class = 'tag-svc-running' if is_running else 'tag-svc-stopped'
+        
+        btn_action = f'''
+        <button type="button" class="btn-svc-action btn-svc-restart" onclick="controlService('{name}', 'restart')" title="Restart {display}">Restart</button>
+        '''
+        if is_running:
+            btn_action += f'''<button type="button" class="btn-svc-action btn-svc-stop" onclick="controlService('{name}', 'stop')" title="Stop {display}">Stop</button>'''
+        else:
+            btn_action += f'''<button type="button" class="btn-svc-action btn-svc-start" onclick="controlService('{name}', 'start')" title="Start {display}">Start</button>'''
+            
+        row = f'''<tr id="svc-row-{name}">
+            <td>
+                <div class="proc-name-cell">
+                    <span class="proc-dot" style="background: {dot_color};"></span>
+                    <div>
+                        <div style="font-weight: 600; color: var(--text-navy); font-size: 13px;">{display}</div>
+                        <div style="font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace;">{name} · {desc}</div>
+                    </div>
+                </div>
+            </td>
+            <td><span class="{badge_class}">{status}</span></td>
+            <td style="text-align: right; white-space: nowrap;">
+                {btn_action}
+            </td>
+        </tr>'''
+        rows.append(row)
+    return '\n'.join(rows)
+
 def render_processes_html(processes):
     if not processes:
-        return '<tr><td colspan="4" style="text-align: center; color: var(--text-muted); padding: 18px;">No active process telemetry available</td></tr>'
+        return '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 18px;">No active process telemetry available</td></tr>'
     rows = []
     for p in processes:
         name = html.escape(str(p.get('name', '')))
         pid = html.escape(str(p.get('pid', '')))
         memory = html.escape(str(p.get('memory', '')))
         color = html.escape(str(p.get('color', '#3b82f6')))
-        row = f'''<tr>
+        row = f'''<tr id="proc-row-{pid}">
             <td>
                 <div class="proc-name-cell">
                     <span class="proc-dot" style="background: {color};"></span>
-                    <span>{name}</span>
+                    <span style="font-weight: 600;">{name}</span>
                 </div>
             </td>
-            <td>{pid}</td>
+            <td><span style="font-family: \'JetBrains Mono\', monospace; font-size: 12px; color: var(--text-muted);">{pid}</span></td>
             <td class="proc-mem-cell">{memory}</td>
             <td><span class="tag-active">Active</span></td>
+            <td style="text-align: right;">
+                <button type="button" class="btn-kill-proc" onclick="confirmKillProcess(\'{pid}\', \'{name}\')" title="Terminate process {name}">End Task</button>
+            </td>
         </tr>'''
         rows.append(row)
     return '\n'.join(rows)
 
-def get_template_replacements(tailscale_ip, port):
-    t = get_system_telemetry(tailscale_ip, port)
+def get_template_replacements(tailscale_ip=None, port=6969, access_mode="lan"):
+    t = get_system_telemetry(tailscale_ip, port, access_mode)
     hostname = html.escape(t.get('hostname', 'Host'))
     interfaces = t.get('interfaces', [])
     disks = t.get('disks', [])
     top_proc = t.get('top_processes', [])
     gpu = t.get('gpu', {})
+
+    lan_ip = t.get('lan_ip', '127.0.0.1')
+    ts_ip = t.get('tailscale_ip', '')
+    ts_display = ts_ip if ts_ip else "Not Connected"
+    ts_desc = f"Encrypted WireGuard peer-to-peer connection via Tailscale IP ({ts_ip})" if ts_ip else "Tailscale was not detected on this machine. You can connect Tailscale or enter IP manually."
     
     cpu_pct = t.get('cpu_percent', 0)
     cpu_cores = t.get('cpu_cores', 1)
@@ -697,6 +1076,19 @@ def get_template_replacements(tailscale_ip, port):
     disk_free = html.escape(t.get('primary_disk_free', '0 GB'))
     disk_total = html.escape(t.get('primary_disk_total', '0 GB'))
     disk_pct = t.get('primary_disk_percent', 0)
+
+    bat = t.get('battery', {})
+    power_val = html.escape(str(bat.get('val', 'Mains Power')))
+    power_sub = html.escape(str(bat.get('sub', 'AC Line Active')))
+    power_pct = bat.get('percent', 100)
+    power_color = bat.get('color', '#10b981')
+    power_spec = f"{power_val} · {html.escape(str(bat.get('status', 'Connected')))}"
+    
+    services = t.get('services', [])
+    running_svcs = sum(1 for s in services if s.get('status') == 'RUNNING')
+    hw = t.get('hardware', {})
+    uptime_val = html.escape(str(t.get('uptime', 'Online')))
+    boot_str = html.escape(str(t.get('boot_time', 'System Boot Active')))
     
     return {
         '{{HOSTNAME}}': hostname,
@@ -715,15 +1107,30 @@ def get_template_replacements(tailscale_ip, port):
         '{{PRIMARY_DISK_VAL}}': f"{disk_free} Free",
         '{{PRIMARY_DISK_PERCENT}}': str(disk_pct),
         '{{PRIMARY_DISK_SUB}}': f"{disk_pct}% used of {disk_total} total",
+        '{{POWER_VAL}}': power_val,
+        '{{POWER_SUB}}': power_sub,
+        '{{POWER_PERCENT}}': str(power_pct),
+        '{{POWER_COLOR}}': power_color,
+        '{{POWER_SPEC}}': power_spec,
         '{{PROC_COUNT}}': str(t.get('process_count', len(top_proc))),
         '{{PROC_ROWS}}': render_processes_html(top_proc),
         '{{DISK_COUNT}}': str(len(disks)),
         '{{DISKS_HTML}}': render_disks_html(disks),
         '{{IFACES_ROWS}}': render_interfaces_html(interfaces),
-        '{{PRIMARY_IP}}': html.escape(str(t.get('primary_ip', tailscale_ip))),
+        '{{PRIMARY_IP}}': html.escape(str(t.get('primary_ip', lan_ip))),
+        '{{DETECTED_LAN_IP}}': html.escape(lan_ip),
+        '{{DETECTED_TAILSCALE_IP}}': html.escape(ts_display),
+        '{{TAILSCALE_DESC}}': html.escape(ts_desc),
         '{{PORT}}': str(port),
         '{{CPU_CORES}}': str(cpu_cores),
         '{{CPU_ARCH}}': html.escape(platform.machine() or 'x86_64'),
         '{{OS_NAME}}': html.escape(t.get('os', 'Windows')),
-        '{{MESH_STATUS}}': html.escape(str(t.get('mesh_status', 'Tailscale WireGuard')))
+        '{{MESH_STATUS}}': html.escape(str(t.get('mesh_status', 'Local Network Direct'))),
+        '{{UPTIME_VAL}}': uptime_val,
+        '{{BOOT_TIMESTAMP}}': boot_str,
+        '{{CPU_MODEL}}': html.escape(str(hw.get('model', 'Multi-Core Processor'))),
+        '{{CPU_MHZ}}': html.escape(str(hw.get('mhz', ''))),
+        '{{SERVICES_COUNT}}': str(len(services)),
+        '{{SERVICES_RUNNING_COUNT}}': str(running_svcs),
+        '{{SERVICES_ROWS}}': render_services_html(services)
     }
